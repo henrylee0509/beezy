@@ -21,17 +21,35 @@ Ask *"Can I afford to restock and pay everyone next month?"* and you watch the a
 
 ## Quick start (about 2 minutes)
 
+Requires Python 3.11 or newer.
+
 ```bash
-git clone <your-repo-url> businesspilot && cd businesspilot
-python3 -m venv .venv && source .venv/bin/activate
+git clone https://github.com/henrylee0509/bizpilot.git && cd bizpilot
+python3 -m venv .venv && source .venv/bin/activate      # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
-cp .env.example .env          # add MODEL_API_KEY=... for live Muse Spark (optional)
-python run.py                 # http://localhost:8000
+cp .env.example .env                                     # Windows: copy .env.example .env
+python run.py                                            # open http://localhost:8000
 ```
 
-Sign in with a demo account (password `demo1234`): `owner@`, `manager@`, `hr@`, `finance@`, `staff@` + `brewbean.demo`. The demo business **Brew & Bean Cafe** is seeded automatically with dates relative to today.
+To use live Muse Spark, open `.env` and set your Meta Model API key, then restart:
 
-Docker: `docker compose up --build` (reads `.env` if present).
+```bash
+MODEL_API_KEY=your-meta-model-api-key
+```
+
+Sign in with any demo account. Every account uses the password `demo1234`, and the login page has one-click buttons for each.
+
+| Email | Role | What it can do |
+|---|---|---|
+| `owner@brewbean.demo` | Owner | Everything, including approving large orders and payroll |
+| `manager@brewbean.demo` | Manager | Operations; approves orders up to SGD 2,000; no salary data |
+| `hr@brewbean.demo` | HR | Employees, attendance and payroll preparation |
+| `finance@brewbean.demo` | Finance | Money, invoices and reports; no salary data |
+| `staff@brewbean.demo` | Staff | Restricted view |
+
+The demo business **Brew & Bean Cafe** is seeded automatically on first start, with dates relative to today. The owner can restore it any time from Settings → Reset demo data.
+
+Docker: `docker compose up --build`, then open http://localhost:8000 (it reads `.env` if present).
 
 Without `MODEL_API_KEY` the app runs in **mock mode**: a deterministic planner calls the same tools and templates the answer. Mock mode is labelled everywhere in the UI and API and never claims to be Muse Spark.
 
