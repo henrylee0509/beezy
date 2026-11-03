@@ -1,8 +1,8 @@
-# BusinessPilot — your AI operations team for small businesses
+# Beezy — your AI operations team for small businesses
 
 **Track:** Build for Your World · **Meta models:** Muse Spark 1.3 (tool-calling agents), Muse Voice Transcribe 1.0 (voice commands) via the Meta Model API
 
-Small business owners juggle stock spreadsheets, supplier emails, payroll calculators, contract folders and bank statements. BusinessPilot replaces that with **six specialist AI agents that act as virtual departments** — Inventory, Procurement, Finance, HR & Payroll, Contracts and Business Intelligence — coordinated by an Executive Assistant. They don't just show data: they detect problems, compare options, **prepare the work** (purchase orders, payroll runs, reminders) and **wait for the owner's approval** before anything commits money.
+Small business owners juggle stock spreadsheets, supplier emails, payroll calculators, contract folders and bank statements. Beezy replaces that with **six specialist AI agents that act as virtual departments** — Inventory, Procurement, Finance, HR & Payroll, Contracts and Business Intelligence — coordinated by an Executive Assistant. They don't just show data: they detect problems, compare options, **prepare the work** (purchase orders, payroll runs, reminders) and **wait for the owner's approval** before anything commits money.
 
 Ask *"Can I afford to restock and pay everyone next month?"* and you watch the agents work in parallel on real records, get one consolidated answer with every figure traced back to the database, and approve the drafted purchase orders right in the chat.
 
@@ -80,4 +80,4 @@ They cover thresholds, forecasting, supplier choice, MOQ rounding, spending limi
 
 ## Disclaimers
 
-BusinessPilot summarises; it is not certified accounting, tax, legal or investment advice. Payroll rules ship as *unverified* until confirmed against official sources. Supplier submission and salary payments are **simulated** — no real orders or money movements are made. All demo people and companies are fictional.
+Beezy summarises; it is not certified accounting, tax, legal or investment advice. Payroll rules ship as *unverified* until confirmed against official sources. Supplier submission and salary payments are **simulated** — no real orders or money movements are made. All demo people and companies are fictional.

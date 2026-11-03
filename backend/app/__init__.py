@@ -1,1 +1,1 @@
-"""BusinessPilot backend package."""
+"""Beezy backend package."""

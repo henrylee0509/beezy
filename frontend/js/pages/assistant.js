@@ -24,7 +24,7 @@ export async function render(el, params) {
       <section class="panel convo"><div class="messages" id="messages"></div>
         <form class="composer" id="composer">
           <button type="button" class="icon-btn mic" id="micBtn" aria-label="Hold to speak" title="${state.me.ai.mode === 'real' ? 'Speak (Muse Voice Transcribe)' : 'Voice needs a Meta API key'}">${icon('mic')}</button>
-          <textarea id="prompt" rows="1" placeholder="Ask BusinessPilot about stock, cash, payroll, suppliers or contracts…" aria-label="Message"></textarea>
+          <textarea id="prompt" rows="1" placeholder="Ask Beezy about stock, cash, payroll, suppliers or contracts…" aria-label="Message"></textarea>
           <button class="btn primary" id="sendBtn" type="submit">${icon('send')} Send</button>
         </form></section>
       <aside class="floor">
@@ -64,7 +64,7 @@ export async function render(el, params) {
       return;
     }
     session = await api.get(`/api/assistant/sessions/${sessionId}`);
-    msgs.innerHTML = session.messages.map(renderMsg).join('') + (running ? `<div class="msg assistant" id="thinking"><div class="who">BusinessPilot</div><div class="muted">Working on it — follow the operations floor.</div></div>` : '');
+    msgs.innerHTML = session.messages.map(renderMsg).join('') + (running ? `<div class="msg assistant" id="thinking"><div class="who">Beezy</div><div class="muted">Working on it — follow the operations floor.</div></div>` : '');
     msgs.lastElementChild?.scrollIntoView({ block: 'end', behavior: 'smooth' });
   }
 
@@ -83,7 +83,7 @@ export async function render(el, params) {
           : (ap && ap.status === 'PENDING' ? `<span class="badge amber">Needs ${esc(ap.required_role.toLowerCase())}</span>` : statusBadge(status === 'APPROVED' && a.type === 'PURCHASE_ORDER' ? 'SUBMITTED' : status))}
         <a class="small" href="${a.link}">Open</a></div>`;
     }).join('');
-    return `<div class="msg assistant"><div class="who"><b style="color:var(--ink)">BusinessPilot</b> ${mode} ${agents}
+    return `<div class="msg assistant"><div class="who"><b style="color:var(--ink)">Beezy</b> ${mode} ${agents}
         ${meta.duration_ms ? `<span>${(meta.duration_ms / 1000).toFixed(1)}s${meta.model_calls ? ` · ${meta.model_calls} model calls` : ''}</span>` : ''}</div>
       <div class="ai-prose">${md(m.content)}</div>
       ${actions ? `<div style="margin-top:6px"><div class="small muted" style="font-weight:600">Prepared for your approval — nothing has been submitted or paid yet</div>${actions}</div>` : ''}
@@ -192,9 +192,9 @@ export async function render(el, params) {
     try {
       prompt.placeholder = 'Transcribing with Muse Voice Transcribe…';
       const t = await api.upload('/api/assistant/voice', fd);
-      prompt.placeholder = 'Ask BusinessPilot…';
+      prompt.placeholder = 'Ask Beezy…';
       if (t.text) { prompt.value = t.text; send(t.text); } else toast('No speech detected');
-    } catch (e) { prompt.placeholder = 'Ask BusinessPilot…'; errToast(e); }
+    } catch (e) { prompt.placeholder = 'Ask Beezy…'; errToast(e); }
   };
   mic.addEventListener('pointerdown', startRec);
   mic.addEventListener('pointerup', stopRec);

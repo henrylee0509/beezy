@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>BusinessPilot — demo slides</title>
+<title>Beezy — demo slides</title>
 <style>
   /* Same fonts and tokens as the product (frontend/css/app.css) so slides and footage read as one piece. */
   @font-face { font-family: "Inter"; src: url("../frontend/fonts/inter-400.woff") format("woff"); font-weight: 400; }
@@ -13,11 +13,12 @@
   @font-face { font-family: "Lora"; src: url("../frontend/fonts/lora-var.woff") format("woff"); font-weight: 400 700; }
   @font-face { font-family: "Lora"; src: url("../frontend/fonts/lora-italic-var.woff") format("woff"); font-weight: 400 700; font-style: italic; }
   :root {
-    --paper: #f4f6f9; --surface: #ffffff; --surface-2: #f9fafc; --ink: #14213d; --ink-2: #44506a; --ink-3: #6b7489;
-    --line: #e2e7ef; --line-2: #cfd6e2; --blue: #2456d3; --blue-soft: #e9effc; --teal: #0d8a80; --teal-soft: #e3f4f2;
-    --green: #1f8a4e; --green-soft: #e5f4ea; --amber: #b7791f; --amber-soft: #fbf1df; --red: #c0392b; --red-soft: #fbe9e7;
-    --inv: #0d8a80; --pro: #4b4fc4; --fin: #2456d3; --hr: #7a3e8f; --con: #8a5a2b; --bi: #14213d;
-    --shadow: 0 2px 4px rgba(20, 33, 61, .05), 0 10px 30px rgba(20, 33, 61, .07);
+    --paper: #f6f5f1; --surface: #ffffff; --surface-2: #fbfaf7; --ink: #16140f; --ink-2: #46423a; --ink-3: #716b60;
+    --line: #e8e5dc; --line-2: #d6d1c4; --honey: #f5b301; --honey-deep: #e0a100; --honey-soft: #fff3c4; --honey-ink: #6b4500;
+    --blue: #8a5a00; --blue-soft: #fff3c4; --teal: #16140f; --teal-soft: #fff3c4;
+    --green: #2f7d32; --green-soft: #e7f3e4; --amber: #c2620a; --amber-soft: #fdeedd; --red: #c0392b; --red-soft: #fbe9e7;
+    --inv: #c98f00; --pro: #c2410c; --fin: #16140f; --hr: #7a5c1e; --con: #57534e; --bi: #3f6212;
+    --shadow: 0 2px 4px rgba(22, 20, 15, .05), 0 10px 30px rgba(22, 20, 15, .07);
     --sans: "Inter", sans-serif; --serif: "Lora", Georgia, serif;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -27,7 +28,7 @@
   .slide { position: absolute; inset: 0; display: none; padding: 150px 140px 0; }
   .slide.on { display: block; }
   .brandbar { position: absolute; left: 140px; top: 64px; display: flex; align-items: center; gap: 14px; font-weight: 700; font-size: 24px; letter-spacing: -0.02em; color: var(--ink); }
-  .mark { width: 40px; height: 40px; border-radius: 11px; background: var(--ink); display: grid; place-items: center; flex: none; }
+  .mark { width: 40px; height: 40px; border-radius: 11px; background: var(--honey); display: grid; place-items: center; flex: none; }
   .mark svg { width: 28px; height: 28px; }
 
   @keyframes up { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
@@ -51,7 +52,7 @@
   .panel { background: var(--surface); border: 1px solid var(--line); border-radius: 22px; box-shadow: var(--shadow); }
   .badge { display: inline-flex; align-items: center; gap: 10px; padding: 9px 18px; border-radius: 999px; font-size: 22px; font-weight: 650;
     background: var(--surface); color: var(--ink-2); border: 1px solid var(--line); white-space: nowrap; }
-  .badge.teal { background: var(--teal-soft); color: var(--teal); border-color: transparent; }
+  .badge.teal { background: var(--honey-soft); color: var(--honey-ink); border-color: transparent; }
   .badge.red { background: var(--red-soft); color: var(--red); border-color: transparent; }
   .badge.green { background: var(--green-soft); color: var(--green); border-color: transparent; }
   .badge .dot { width: 12px; height: 12px; border-radius: 4px; }
@@ -61,9 +62,9 @@
   /* ---------- title ---------- */
   #title { padding: 0; }
   #title .left { position: absolute; left: 140px; top: 210px; width: 900px; }
-  #title .bigmark { width: 104px; height: 104px; border-radius: 28px; background: var(--ink); display: grid; place-items: center; margin-bottom: 44px; }
+  #title .bigmark { width: 104px; height: 104px; border-radius: 28px; background: var(--honey); display: grid; place-items: center; margin-bottom: 44px; }
   #title .bigmark svg { width: 74px; height: 74px; }
-  #title .name { font-size: 148px; font-weight: 800; letter-spacing: -0.055em; line-height: .95; }
+  #title .name { font-size: 230px; font-weight: 800; letter-spacing: -0.055em; line-height: .9; margin-left: -10px; }
   #title .tag { font-size: 44px; color: var(--ink-3); margin-top: 30px; font-weight: 500; letter-spacing: -0.015em; line-height: 1.25; }
   #title .chips { display: flex; gap: 10px; margin-top: 54px; }
   #title .chips .badge { font-size: 19px; padding: 8px 15px; }
@@ -71,8 +72,8 @@
   .floor .head { display: flex; align-items: baseline; gap: 14px; margin-bottom: 20px; }
   .floor .head b { font-size: 30px; font-weight: 700; letter-spacing: -0.02em; }
   .floor .head span { font-size: 21px; color: var(--ink-3); }
-  .exec { display: flex; align-items: center; gap: 18px; border: 1.5px solid var(--teal); border-radius: 16px; padding: 18px 20px; margin-bottom: 14px; position: relative; }
-  .exec .d-icon { background: var(--teal); width: 50px; height: 50px; border-radius: 13px; }
+  .exec { display: flex; align-items: center; gap: 18px; border: 1.5px solid var(--honey-deep); border-radius: 16px; padding: 18px 20px; margin-bottom: 14px; position: relative; }
+  .exec .d-icon { background: var(--ink); color: var(--honey); width: 50px; height: 50px; border-radius: 13px; }
   .exec b { font-size: 25px; font-weight: 700; display: block; }
   .exec .st { font-size: 20px; color: var(--ink-3); position: relative; height: 26px; margin-top: 2px; }
   .exec .st span, .desk .st span { position: absolute; left: 0; top: 0; white-space: nowrap; }
@@ -98,13 +99,13 @@
   /* ---------- solution ---------- */
   .steps { display: grid; grid-template-columns: 1fr 64px 1fr 64px 1fr; margin-top: 76px; }
   .step { padding: 44px 42px 46px; }
-  .step .ic { width: 60px; height: 60px; border-radius: 16px; display: grid; place-items: center; background: var(--blue-soft); color: var(--blue); }
+  .step .ic { width: 60px; height: 60px; border-radius: 16px; display: grid; place-items: center; background: var(--honey-soft); color: var(--honey-ink); }
   .step .ic svg { width: 32px; height: 32px; }
   .step .t { font-size: 62px; font-weight: 800; letter-spacing: -0.04em; margin: 26px 0 12px; }
   .step .s { font-size: 26px; color: var(--ink-3); line-height: 1.4; }
-  .step.yes { background: var(--teal); border-color: transparent; color: #fff; }
-  .step.yes .s { color: #d9f1ee; }
-  .step.yes .ic { background: rgba(255, 255, 255, .16); color: #fff; }
+  .step.yes { background: var(--honey); border-color: transparent; color: var(--ink); }
+  .step.yes .s { color: #4a3800; }
+  .step.yes .ic { background: var(--ink); color: var(--honey); }
   .chev { display: grid; place-items: center; color: var(--line-2); }
   .chev svg { width: 40px; height: 40px; }
   .depts { display: flex; gap: 12px; margin-top: 54px; flex-wrap: wrap; }
@@ -114,12 +115,13 @@
   #arch h2 { font-size: 58px; }
   svg.wires { position: absolute; inset: 0; width: 1920px; height: 1080px; pointer-events: none; }
   .wire { fill: none; stroke: var(--line-2); stroke-width: 3; stroke-dasharray: var(--len, 900); stroke-dashoffset: var(--len, 900); animation: draw .9s ease both; }
-  .pulse { fill: none; stroke: var(--teal); stroke-width: 4; stroke-linecap: round; stroke-dasharray: 2 58; opacity: 0; animation: fade .4s ease both, flow 1s linear infinite; }
+  .pulse { fill: none; stroke: var(--honey-deep); stroke-width: 4; stroke-linecap: round; stroke-dasharray: 2 58; opacity: 0; animation: fade .4s ease both, flow 1s linear infinite; }
   .box { position: absolute; padding: 20px 24px; border-radius: 18px; }
   .box .t { font-size: 25px; font-weight: 700; letter-spacing: -0.015em; display: flex; align-items: center; gap: 12px; }
   .box .s { font-size: 19px; color: var(--ink-3); margin-top: 7px; line-height: 1.35; }
-  .box.ex { background: var(--teal); color: #fff; border: 0; }
-  .box.ex .s { color: #d9f1ee; }
+  .box.ex { background: var(--ink); color: #fff; border: 0; }
+  .box.ex .s { color: #cfc8b8; }
+  .box.ex .d-icon { background: var(--honey) !important; color: var(--ink); }
   .box .d-icon { width: 34px; height: 34px; border-radius: 9px; }
   .box .d-icon svg { width: 19px; height: 19px; }
   .agent { position: absolute; width: 330px; height: 72px; border-radius: 16px; display: flex; align-items: center; gap: 14px; padding: 0 16px; font-size: 23px; font-weight: 650; }
@@ -133,7 +135,7 @@
   .kband { display: grid; grid-template-columns: repeat(4, 1fr); margin-top: 72px; overflow: hidden; }
   .kc { padding: 40px 38px 44px; border-right: 1px solid var(--line); }
   .kc:last-child { border-right: 0; }
-  .kc .ic { width: 52px; height: 52px; border-radius: 14px; display: grid; place-items: center; background: var(--teal-soft); color: var(--teal); }
+  .kc .ic { width: 52px; height: 52px; border-radius: 14px; display: grid; place-items: center; background: var(--honey-soft); color: var(--honey-ink); }
   .kc .ic svg { width: 28px; height: 28px; }
   .kc .v { font-size: 60px; font-weight: 800; letter-spacing: -0.045em; margin-top: 26px; }
   .kc .l { font-size: 25px; font-weight: 650; margin-top: 6px; }
@@ -142,14 +144,16 @@
   /* ---------- next ---------- */
   .next { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 70px; }
   .next .panel { padding: 40px 40px 44px; min-height: 280px; }
-  .next .ic { width: 56px; height: 56px; border-radius: 15px; display: grid; place-items: center; background: var(--blue-soft); color: var(--blue); }
+  .next .ic { width: 56px; height: 56px; border-radius: 15px; display: grid; place-items: center; background: var(--honey-soft); color: var(--honey-ink); }
   .next .ic svg { width: 30px; height: 30px; }
   .next .t { font-size: 34px; font-weight: 750; letter-spacing: -0.025em; margin-top: 26px; }
   .next .s { font-size: 24px; color: var(--ink-3); margin-top: 12px; line-height: 1.4; }
 
   /* ---------- bumper & close ---------- */
   #bumper, #close { padding: 0; }
-  #bumper.on, #close.on { display: grid; place-items: center; text-align: center; }
+  #bumper.on, #close.on { display: grid; place-items: center; text-align: center; background: var(--ink); color: #fff; }
+  #bumper .s, #close .by { color: #b5ad9c !important; }
+  .live { color: var(--honey) !important; } .live i { background: var(--honey) !important; }
   .live { display: inline-flex; align-items: center; gap: 12px; font-size: 24px; color: var(--red); font-weight: 650; margin-bottom: 26px; }
   .live i { width: 16px; height: 16px; border-radius: 50%; background: var(--red); }
   #bumper .big { font-size: 128px; font-weight: 800; letter-spacing: -0.055em; }
@@ -166,8 +170,8 @@
 <!-- 1. TITLE -->
 <section class="slide" id="title">
   <div class="left">
-    <div class="bigmark a" style="animation-delay:.05s"><svg viewBox="0 0 32 32"><path d="M9 22 L16 9 L23 22 L16 18 Z" fill="#3cc1b5"/></svg></div>
-    <div class="name a" style="animation-delay:.2s">Business<br>Pilot</div>
+    <div class="bigmark a" style="animation-delay:.05s"><svg viewBox="0 0 32 32"><path d="M16 6.5 L24.2 11.25 L24.2 20.75 L16 25.5 L7.8 20.75 L7.8 11.25 Z" fill="#16140f"/></svg></div>
+    <div class="name a" style="animation-delay:.2s">Beezy</div>
     <div class="tag a" style="animation-delay:.55s">Your AI operations team<br>for small businesses.</div>
     <div class="chips">
       <span class="badge teal a" style="animation-delay:1.0s"><i data-icon="sparkle" style="width:22px;height:22px;display:inline-block"></i>Built on Meta Muse Spark</span>
@@ -191,7 +195,7 @@
 
 <!-- 2. PROBLEM -->
 <section class="slide" id="problem">
-  <div class="brandbar f"><span class="mark"><svg viewBox="0 0 32 32"><path d="M9 22 L16 9 L23 22 L16 18 Z" fill="#3cc1b5"/></svg></span>BusinessPilot</div>
+  <div class="brandbar f"><span class="mark"><svg viewBox="0 0 32 32"><path d="M16 6.5 L24.2 11.25 L24.2 20.75 L16 25.5 L7.8 20.75 L7.8 11.25 Z" fill="#16140f"/></svg></span>Beezy</div>
   <h2 class="a" style="animation-delay:.1s">A small business runs on six systems<br>that never talk to each other.</h2>
   <div class="alerts6">
     <div class="panel al a" style="animation-delay:.8s"><i class="sev" style="--sev:var(--red);animation-delay:5.4s"></i><div><div class="t">Stock spreadsheet</div><div class="s">Updated when someone remembers</div><span class="badge red p" style="animation-delay:5.5s">Stockout</span></div></div>
@@ -206,7 +210,7 @@
 
 <!-- 3. SOLUTION -->
 <section class="slide" id="solution">
-  <div class="brandbar f"><span class="mark"><svg viewBox="0 0 32 32"><path d="M9 22 L16 9 L23 22 L16 18 Z" fill="#3cc1b5"/></svg></span>BusinessPilot</div>
+  <div class="brandbar f"><span class="mark"><svg viewBox="0 0 32 32"><path d="M16 6.5 L24.2 11.25 L24.2 20.75 L16 25.5 L7.8 20.75 L7.8 11.25 Z" fill="#16140f"/></svg></span>Beezy</div>
   <h2 class="a" style="animation-delay:.1s">Six AI departments that do the work,<br>not just report on it.</h2>
   <div class="steps">
     <div class="panel step a" style="animation-delay:1.2s"><div class="ic" data-icon="bell"></div><div class="t">Detect</div><div class="s">Agents watch stock, cash, payroll and contracts around the clock.</div></div>
@@ -220,7 +224,7 @@
 
 <!-- 4. ARCHITECTURE -->
 <section class="slide" id="arch">
-  <div class="brandbar f" style="left:110px"><span class="mark"><svg viewBox="0 0 32 32"><path d="M9 22 L16 9 L23 22 L16 18 Z" fill="#3cc1b5"/></svg></span>BusinessPilot</div>
+  <div class="brandbar f" style="left:110px"><span class="mark"><svg viewBox="0 0 32 32"><path d="M16 6.5 L24.2 11.25 L24.2 20.75 L16 25.5 L7.8 20.75 L7.8 11.25 Z" fill="#16140f"/></svg></span>Beezy</div>
   <h2 class="a" style="animation-delay:.1s">Muse Spark decides. Deterministic code does the maths.</h2>
   <svg class="wires">
     <path class="wire" style="--len:150;animation-delay:1.3s" d="M410 566 L520 566"/>
@@ -266,7 +270,7 @@
 
 <!-- 6. TRUST -->
 <section class="slide" id="trust">
-  <div class="brandbar f"><span class="mark"><svg viewBox="0 0 32 32"><path d="M9 22 L16 9 L23 22 L16 18 Z" fill="#3cc1b5"/></svg></span>BusinessPilot</div>
+  <div class="brandbar f"><span class="mark"><svg viewBox="0 0 32 32"><path d="M16 6.5 L24.2 11.25 L24.2 20.75 L16 25.5 L7.8 20.75 L7.8 11.25 Z" fill="#16140f"/></svg></span>Beezy</div>
   <h2 class="a" style="animation-delay:.1s">An AI you can hand the keys to,<br>because it never holds the money.</h2>
   <div class="panel kband a" style="animation-delay:.9s">
     <div class="kc a" style="animation-delay:1.3s"><div class="ic" data-icon="shield"></div><div class="v">Verified</div><div class="l">Every figure is checked</div><div class="s">Each number in an answer is traced to a tool result; anything untraceable is flagged.</div></div>
@@ -278,7 +282,7 @@
 
 <!-- 7. NEXT -->
 <section class="slide" id="next">
-  <div class="brandbar f"><span class="mark"><svg viewBox="0 0 32 32"><path d="M9 22 L16 9 L23 22 L16 18 Z" fill="#3cc1b5"/></svg></span>BusinessPilot</div>
+  <div class="brandbar f"><span class="mark"><svg viewBox="0 0 32 32"><path d="M16 6.5 L24.2 11.25 L24.2 20.75 L16 25.5 L7.8 20.75 L7.8 11.25 Z" fill="#16140f"/></svg></span>Beezy</div>
   <h2 class="a" style="animation-delay:.1s">From one cafe to every corner shop.</h2>
   <div class="next">
     <div class="panel a" style="animation-delay:.9s"><div class="ic" data-icon="finance"></div><div class="t">Live data feeds</div><div class="s">Point-of-sale and bank feeds keep stock and cash current automatically.</div></div>
@@ -290,9 +294,9 @@
 <!-- 8. CLOSE -->
 <section class="slide" id="close">
   <div>
-    <div class="big"><span class="a" style="animation-delay:.1s">Detect.</span> <span class="a" style="animation-delay:.6s">Prepare.</span><br><span class="a" style="animation-delay:1.1s;color:var(--teal)">You approve.</span></div>
-    <div><span class="panel url a" style="animation-delay:2.0s"><span class="mark"><svg viewBox="0 0 32 32"><path d="M9 22 L16 9 L23 22 L16 18 Z" fill="#3cc1b5"/></svg></span>github.com/henrylee0509/bizpilot</span></div>
-    <div class="by a" style="animation-delay:2.4s">BusinessPilot, built on Meta Muse Spark. Thank you for watching.</div>
+    <div class="big"><span class="a" style="animation-delay:.1s">Detect.</span> <span class="a" style="animation-delay:.6s">Prepare.</span><br><span class="a" style="animation-delay:1.1s;color:var(--honey)">You approve.</span></div>
+    <div><span class="panel url a" style="animation-delay:2.0s"><span class="mark"><svg viewBox="0 0 32 32"><path d="M16 6.5 L24.2 11.25 L24.2 20.75 L16 25.5 L7.8 20.75 L7.8 11.25 Z" fill="#16140f"/></svg></span>github.com/henrylee0509/bizpilot</span></div>
+    <div class="by a" style="animation-delay:2.4s">Beezy, built on Meta Muse Spark. Thank you for watching.</div>
   </div>
 </section>
 

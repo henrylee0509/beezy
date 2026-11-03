@@ -69,7 +69,7 @@ export async function render(el, params) {
     try { await api.post(`/api/payroll/${b.dataset.approveRun}/approve`); toast('Payroll approved', 'ok'); refreshCounts(); payroll(); } catch (err) { errToast(err); }
   });
   on(pane, 'click', '[data-pay-run]', async (e, b) => {
-    if (!await confirmBox('Record salary payment', 'Record that salaries have been paid? This books the expense in Finance. BusinessPilot does not move money; pay through your bank as usual.', 'Record payment')) return;
+    if (!await confirmBox('Record salary payment', 'Record that salaries have been paid? This books the expense in Finance. Beezy does not move money; pay through your bank as usual.', 'Record payment')) return;
     try { await api.post(`/api/payroll/${b.dataset.payRun}/pay`); toast('Payment recorded', 'ok'); payroll(); } catch (err) { errToast(err); }
   });
   on(pane, 'click', '[data-slips]', async (e, b) => {

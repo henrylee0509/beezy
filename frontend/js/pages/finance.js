@@ -35,7 +35,7 @@ export async function render(el, params) {
       </div>
       <div class="grid g2">
         <section class="panel"><div class="panel-head"><h2>Monthly revenue, expenses and profit</h2></div><div class="panel-body">${barChart({ labels: cf.monthly.map(m => monthLabel(m.month) + (m.partial ? '*' : '')),
-          series: [{ name: 'Revenue', values: cf.monthly.map(m => m.revenue), color: PALETTE[0] }, { name: 'Expenses', values: cf.monthly.map(m => m.expenses), color: '#9aa6bd' },
+          series: [{ name: 'Revenue', values: cf.monthly.map(m => m.revenue), color: PALETTE[0] }, { name: 'Expenses', values: cf.monthly.map(m => m.expenses), color: '#cfc8b8' },
             { name: 'Net operating profit', values: cf.monthly.map(m => Math.max(0, m.net_operating_profit)), color: PALETTE[1] }] })}</div></section>
         <section class="panel"><div class="panel-head"><h2>Expense breakdown</h2><span class="sub">Last 30 days</span></div><div class="panel-body">${donut(cf.expense_breakdown_30d.map(x => ({ label: x.category, value: x.total })))}</div></section>
         <section class="panel"><div class="panel-head"><h2>Unusual spending</h2><span class="sub">Last 30 days vs the three 30-day periods before</span></div><div class="panel-body">

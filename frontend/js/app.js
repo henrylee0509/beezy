@@ -48,7 +48,7 @@ function renderAuth(mode = 'login') {
     ['HR & Payroll', 'Deterministic payroll prep'], ['Contracts', 'Renewals & notice deadlines'], ['Intelligence', 'Priorities across it all']];
   app.innerHTML = `<div class="auth">
     <div class="auth-side">
-      <div class="brand"><div class="brand-mark">${logo()}</div><div><div class="brand-name" style="color:#fff">BusinessPilot</div><div class="brand-sub" style="color:#9aa6c0">Powered by Meta Muse Spark</div></div></div>
+      <div class="brand"><div class="brand-mark">${logo()}</div><div><div class="brand-name" style="color:#fff">Beezy</div><div class="brand-sub" style="color:#9aa6c0">Powered by Meta Muse Spark</div></div></div>
       <div>
         <h1>Your business, run by a team that never clocks out.</h1>
         <p style="color:#b8c2d8;max-width:46ch;margin-top:14px">Six specialist AI agents act as your inventory, purchasing, finance, payroll, contracts and analysis departments. They watch the numbers, prepare the work and wait for your approval.</p>
@@ -113,7 +113,7 @@ function renderAuth(mode = 'login') {
 }
 
 function logo() {
-  return `<svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true"><path d="M9 22 L16 9 L23 22 L16 18 Z" fill="#3cc1b5"/></svg>`;
+  return `<svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true"><path d="M16 6.5 L24.2 11.25 L24.2 20.75 L16 25.5 L7.8 20.75 L7.8 11.25 Z" fill="#16140f"/></svg>`;
 }
 
 // ---------------------------------------------------------------- shell
@@ -122,7 +122,7 @@ function renderShell() {
   const mock = me.ai.mode !== 'real';
   app.innerHTML = `<div class="shell">
     <aside class="sidebar" id="sidebar">
-      <div class="brand"><div class="brand-mark">${logo()}</div><div><div class="brand-name">BusinessPilot</div><div class="brand-sub">Your AI operations team</div></div></div>
+      <div class="brand"><div class="brand-mark">${logo()}</div><div><div class="brand-name">Beezy</div><div class="brand-sub">Your AI operations team</div></div></div>
       <nav class="nav" id="nav" aria-label="Main">${PAGES.map(p => p.sep ? '<div class="nav-sep"></div>' : (can(p.perm) ?
         `<a href="#/${p.path}" data-path="${p.path}">${icon(p.icon)}<span>${p.label}</span>${p.path === 'approvals' ? '<span class="count hidden" id="navCount"></span>' : ''}</a>` : '')).join('')}</nav>
       <div class="sidebar-foot">
@@ -138,7 +138,7 @@ function renderShell() {
         ${me.business.is_demo ? '<span class="badge outline">Demo data</span>' : ''}
         <span class="spacer"></span>
         ${me.memberships.length > 1 ? `<select class="input" id="bizSwitch" style="width:auto;padding:5px 8px" aria-label="Switch business">${me.memberships.map(m => `<option value="${m.id}" ${m.id === me.business.id ? 'selected' : ''}>${esc(m.name)}</option>`).join('')}</select>` : ''}
-        <a class="btn teal sm" href="#/assistant">${icon('sparkle')} Ask BusinessPilot</a>
+        <a class="btn teal sm" href="#/assistant">${icon('sparkle')} Ask Beezy</a>
         ${can('approvals.read') ? `<a class="icon-btn" href="#/approvals" aria-label="Approvals">${icon('bell')}<span class="dot hidden" id="bellDot"></span></a>` : ''}
         <button class="icon-btn" id="themeBtn" aria-label="Toggle dark mode">${icon('moon')}</button>
         <button class="icon-btn" id="logoutBtn" aria-label="Sign out">${icon('logout')}</button>
@@ -191,7 +191,7 @@ async function route() {
   old.replaceWith(content);
   if (!can(page.perm)) { content.innerHTML = `<div class="empty"><h3>Not available for your role</h3><p>Ask the owner for access.</p></div>`; return; }
   content.innerHTML = '';
-  document.title = `${page.label} · BusinessPilot`;
+  document.title = `${page.label} · Beezy`;
   try {
     const mod = await import(`./pages/${page.path}.js`);
     cleanup = await mod.render(content, new URLSearchParams(query || '')) || null;

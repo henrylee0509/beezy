@@ -1,4 +1,4 @@
--- BusinessPilot schema (SQLite). Every business-owned table carries business_id.
+-- Beezy schema (SQLite). Every business-owned table carries business_id.
 PRAGMA foreign_keys = ON;
 
 CREATE TABLE IF NOT EXISTS schema_migrations (

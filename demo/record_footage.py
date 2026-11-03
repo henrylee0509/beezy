@@ -1,4 +1,4 @@
-"""Record real product footage of BusinessPilot for the demo video.
+"""Record real product footage of Beezy for the demo video.
 
 Drives the running app with Playwright, captures it through Chrome's screencast (real timing, ~30 fps),
 and draws a visible cursor, captions and camera zooms into the page. Each segment becomes one MP4.
@@ -31,25 +31,26 @@ INJECT = r"""
     ::-webkit-scrollbar { width: 0; height: 0; }
     /* sticky chrome misplaces under the camera transform, so it scrolls normally while filming */
     .topbar, .sidebar, .floor { position: relative !important; top: auto !important; }
+    .sidebar { height: auto !important; }
     #demo-cursor { position: fixed; left: 0; top: 0; width: 26px; height: 26px; z-index: 2147483647; pointer-events: none;
       transform: translate(-3px, -2px); transition: none; filter: drop-shadow(0 2px 4px rgba(0,0,0,.35)); }
     .demo-ripple { position: fixed; z-index: 2147483646; width: 14px; height: 14px; margin: -7px 0 0 -7px; border-radius: 50%;
-      border: 3px solid #0d8a80; pointer-events: none; animation: demo-rip .55s ease-out forwards; }
+      border: 3px solid #e0a100; pointer-events: none; animation: demo-rip .55s ease-out forwards; }
     @keyframes demo-rip { to { transform: scale(4.2); opacity: 0; } }
     #demo-cap { position: fixed; left: 28px; bottom: 26px; z-index: 2147483645; display: flex; gap: 12px; align-items: center;
-      background: rgba(14, 24, 48, .94); color: #eef2fa; padding: 13px 20px 13px 16px; border-radius: 14px;
+      background: rgba(22, 20, 15, .95); color: #fbf8ef; padding: 13px 20px 13px 16px; border-radius: 14px;
       font: 600 19px/1.3 "Inter", sans-serif; box-shadow: 0 10px 30px rgba(0,0,0,.25); max-width: 760px;
       opacity: 0; transform: translateY(16px); transition: opacity .35s ease, transform .35s ease; pointer-events: none; }
     #demo-cap.on { opacity: 1; transform: none; }
-    #demo-cap i { width: 10px; height: 10px; border-radius: 50%; background: #3cc1b5; flex: none; }
-    #demo-cap small { display: block; font-weight: 500; font-size: 15px; color: #9aa6c0; margin-top: 2px; }
+    #demo-cap i { width: 10px; height: 10px; border-radius: 50%; background: #f5b301; flex: none; }
+    #demo-cap small { display: block; font-weight: 500; font-size: 15px; color: #b5ad9c; margin-top: 2px; }
     body.demo-cam { transition: transform .9s cubic-bezier(.45, .05, .2, 1); transform-origin: 0 0; }
   `;
   const install = () => {
     if (document.getElementById('demo-cursor')) return;
     const st = document.createElement('style'); st.textContent = css; document.documentElement.appendChild(st);
     const c = document.createElement('div'); c.id = 'demo-cursor';
-    c.innerHTML = '<svg viewBox="0 0 24 24" width="26" height="26"><path d="M4 2 L4 19 L8.6 14.6 L11.6 21.4 L14.4 20.2 L11.4 13.5 L17.8 13.5 Z" fill="#fff" stroke="#14213d" stroke-width="1.6" stroke-linejoin="round"/></svg>';
+    c.innerHTML = '<svg viewBox="0 0 24 24" width="26" height="26"><path d="M4 2 L4 19 L8.6 14.6 L11.6 21.4 L14.4 20.2 L11.4 13.5 L17.8 13.5 Z" fill="#fff" stroke="#16140f" stroke-width="1.6" stroke-linejoin="round"/></svg>';
     document.documentElement.appendChild(c);
     const cap = document.createElement('div'); cap.id = 'demo-cap'; document.documentElement.appendChild(cap);
     const pos = window.__demoPos || { x: 800, y: 450 };

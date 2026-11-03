@@ -22,7 +22,7 @@ def duration(path: Path) -> float:
 
 def main():
     work = Path(sys.argv[1])
-    final = Path(sys.argv[2]) if len(sys.argv) > 2 else work / "BusinessPilot_demo.mp4"
+    final = Path(sys.argv[2]) if len(sys.argv) > 2 else work / "Beezy_demo.mp4"
     files = [work / f"{n}.mp4" for n in ORDER]
     missing = [f.name for f in files if not f.exists()]
     if missing:

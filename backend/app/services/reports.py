@@ -114,7 +114,7 @@ def to_pdf(report: dict, business_name: str, currency: str) -> bytes:
                             title=report["title"])
     ss = getSampleStyleSheet()
     navy = colors.HexColor("#0f1f3d")
-    els = [Paragraph(f"<font color='#0f766e'>BusinessPilot</font> · {business_name}", ss["Normal"]),
+    els = [Paragraph(f"<font color='#0f766e'>Beezy</font> · {business_name}", ss["Normal"]),
            Paragraph(report["title"], ss["Title"]), Paragraph(f"Generated {report['created_at']} · Currency {currency}", ss["Normal"]),
            Spacer(1, 10)]
     kpis = report["data"].get("kpis") or {}

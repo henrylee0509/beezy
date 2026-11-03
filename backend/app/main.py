@@ -1,4 +1,4 @@
-"""BusinessPilot ASGI application: REST API + static single-page frontend + background automation scheduler."""
+"""Beezy ASGI application: REST API + static single-page frontend + background automation scheduler."""
 from __future__ import annotations
 
 import asyncio
@@ -43,7 +43,7 @@ async def lifespan(app):
         with db.connect() as conn:
             ensure_demo(conn)
     task = asyncio.create_task(_scheduler())
-    print(f"BusinessPilot ready · AI mode: {config.ai_mode()} · model: {config.META_MODEL}")
+    print(f"Beezy ready · AI mode: {config.ai_mode()} · model: {config.META_MODEL}")
     yield
     task.cancel()
 

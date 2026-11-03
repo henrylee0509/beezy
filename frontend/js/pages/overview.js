@@ -71,7 +71,7 @@ export async function render(el) {
     if (c.revenue_vs_expenses) {
       ch += panel('Revenue vs expenses', 'Last 6 months', barChart({ labels: c.revenue_vs_expenses.map(m => monthLabel(m.month) + (m.partial ? '*' : '')),
         series: [{ name: 'Revenue', values: c.revenue_vs_expenses.map(m => m.revenue), color: PALETTE[0] },
-                 { name: 'Expenses', values: c.revenue_vs_expenses.map(m => m.expenses), color: '#9aa6bd' }] }) + '<div class="small muted">* month to date</div>');
+                 { name: 'Expenses', values: c.revenue_vs_expenses.map(m => m.expenses), color: '#cfc8b8' }] }) + '<div class="small muted">* month to date</div>');
       ch += panel('Cash balance', 'Last 60 days, recorded', lineChart({ labels: c.cash_trend.map(p => fmt.date(p.date)), series: [{ name: 'Cash', values: c.cash_trend.map(p => p.balance), color: PALETTE[1], area: true }] }));
       ch += panel('Daily sales', 'Last 30 days', lineChart({ labels: c.daily_sales.map(p => fmt.date(p.date)), series: [{ name: 'Sales', values: c.daily_sales.map(p => p.sales), color: PALETTE[0] }] }));
       ch += panel('Where money went', 'Expenses, last 30 days', c.expense_breakdown.length ? donut(c.expense_breakdown.map(e => ({ label: e.category, value: e.total })))

@@ -37,7 +37,7 @@ def extract_contract(biz: int, pages: list[str], filename: str) -> dict:
         return meta
 
 
-BRIEFING_SYSTEM = """You are BusinessPilot's Business Intelligence Agent writing "Your Business at a Glance" for a small business owner.
+BRIEFING_SYSTEM = """You are Beezy's Business Intelligence Agent writing "Your Business at a Glance" for a small business owner.
 Use ONLY the figures in the JSON facts; do not compute new totals or percentages. Write 4-6 short sentences (plain text, no headings):
 sales performance, stock situation, upcoming payroll and bills, cash outlook, and end with "Recommended priority: ..." naming the 2-3 most important actions.
 Label estimates as estimates. Use the currency code given."""
@@ -91,7 +91,7 @@ def _template_briefing(f: dict) -> str:
     return " ".join(s)
 
 
-EXPLAIN_SYSTEM = """You are BusinessPilot's Business Intelligence Agent. Explain this recommendation to a busy small business owner in 2-4 sentences:
+EXPLAIN_SYSTEM = """You are Beezy's Business Intelligence Agent. Explain this recommendation to a busy small business owner in 2-4 sentences:
 why it matters, what to do first, and any trade-off. Use only figures present in the JSON. Not financial, legal or tax advice."""
 
 
@@ -114,7 +114,7 @@ def explain_recommendation(conn, biz: int, rec_id: int) -> dict:
     return {"text": text, "source": source, "verification": ver}
 
 
-NARRATIVE_SYSTEM = """You are BusinessPilot's Business Intelligence Agent writing a short management summary (one paragraph of 3-5 sentences
+NARRATIVE_SYSTEM = """You are Beezy's Business Intelligence Agent writing a short management summary (one paragraph of 3-5 sentences
 followed by up to 3 bullet points of actions) for the report data provided. Use only the figures in the JSON."""
 
 

@@ -113,7 +113,7 @@ GROUNDING_RULES = """Rules:
 
 def _orchestrator_prompt(ctx, available: list[str]) -> str:
     agents = "\n".join(f"- consult_{k}: {AGENTS[k]['name']} — {AGENTS[k]['focus']}" for k in available)
-    return f"""You are BusinessPilot, the Executive Assistant that coordinates a team of specialist AI agents acting as virtual departments for a small business owner.
+    return f"""You are Beezy, the Executive Assistant that coordinates a team of specialist AI agents acting as virtual departments for a small business owner.
 {_business_context(ctx)}
 
 Specialists you can consult (call the consult tools; call several in the same turn when their work is independent):
@@ -129,7 +129,7 @@ How to work:
 
 def _agent_prompt(key: str, ctx) -> str:
     a = AGENTS[key]
-    return f"""You are the {a['name']} in BusinessPilot, responsible for {a['focus']}.
+    return f"""You are the {a['name']} in Beezy, responsible for {a['focus']}.
 {_business_context(ctx)}
 Use your tools to complete the task from the Executive Assistant. Call tools as needed (several at once if independent), then reply with concise findings: the exact figures from tool results, what they mean, any risks, and any actions you performed (with PO numbers / approval status).
 Only perform ACTION tools when the task explicitly asks you to act.

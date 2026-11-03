@@ -1,4 +1,4 @@
-"""Start BusinessPilot:  python run.py   (then open http://localhost:8000)"""
+"""Start Beezy:  python run.py   (then open http://localhost:8000)"""
 import os
 
 import uvicorn

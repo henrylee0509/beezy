@@ -6,7 +6,7 @@
 
 | Time | Show | Say (suggested) |
 |---|---|---|
-| 0:00–0:20 | Login screen → Overview | "Mia runs a cafe. Inventory, payroll, suppliers, contracts and cash live in five different places. BusinessPilot gives her a team of AI departments built on Meta's Muse Spark." |
+| 0:00–0:20 | Login screen → Overview | "Mia runs a cafe. Inventory, payroll, suppliers, contracts and cash live in five different places. Beezy gives her a team of AI departments built on Meta's Muse Spark." |
 | 0:20–0:40 | Overview: Muse Spark briefing (point at "figures verified"), alerts, stock-level chart | "Every morning the Business Intelligence agent writes this briefing — and every figure is checked against the database." |
 | 0:40–1:30 | Click **Run a health check** → Assistant. Let the operations floor light up | "The Executive Assistant decides which departments it needs and consults them in parallel. Each is its own Muse Spark agent with real tools — you're watching actual tool calls." Point at the plan event and the verifier line. |
 | 1:30–2:00 | Ask (or say via the mic): *"Restock everything below 20%, but make sure it arrives before we run out."* | "Harbour is cheapest for coffee beans, but it can't deliver before we run out in four days, so the Procurement agent picks Highland." Approve the small order inline; show the coffee-beans order needs the owner because it's over the manager limit. |

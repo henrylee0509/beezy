@@ -1,7 +1,7 @@
 // Small dependency-free SVG charts. Tooltips use data-tip attributes handled globally in app.js.
 import { esc, fmt } from './ui.js';
 
-export const PALETTE = ['#2456d3', '#0d8a80', '#b7791f', '#7a3e8f', '#4b4fc4', '#8a5a2b', '#c0392b', '#1f8a4e'];
+export const PALETTE = ['#e0a100', '#16140f', '#c2410c', '#7a5c1e', '#57534e', '#3f6212', '#b45309', '#a8a29e'];
 
 function niceMax(v) {
   if (v <= 0) return 1;

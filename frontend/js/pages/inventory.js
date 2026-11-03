@@ -19,7 +19,7 @@ export async function render(el) {
     const th = data.thresholds;
     el.querySelector('#invLead').textContent = `Alert below ${th.low_stock_pct}% of capacity, urgent below ${th.urgent_stock_pct}%, critical below ${th.critical_stock_pct}%. Stock on hand is worth ${fmt.money(data.inventory_value)} at cost.`;
     if (!data.products.length) {
-      el.querySelector('#tbl').innerHTML = empty('No products yet', 'Add the items you stock so BusinessPilot can watch levels and forecast stockouts.');
+      el.querySelector('#tbl').innerHTML = empty('No products yet', 'Add the items you stock so Beezy can watch levels and forecast stockouts.');
       return;
     }
     el.querySelector('#tbl').innerHTML = `<table class="t"><thead><tr><th>Product</th><th>SKU</th><th>Category</th><th class="right">Stock</th><th class="right">Capacity</th>
@@ -110,7 +110,7 @@ export async function render(el) {
           <td class="right num">${fmt.num(x.min_order_qty)}</td><td class="right num">${x.lead_time_days} d</td><td>${x.arrives_before_stockout ? '<span class="badge green">before stockout</span>' : '<span class="badge red">too late</span>'}</td>
           <td class="right num">${fmt.num(x.order_quantity)}</td><td class="right num">${fmt.money(x.total_cost)}</td><td>${x.recommended ? '<span class="badge teal">recommended</span>' : ''}</td></tr>`).join('')}</tbody></table></div>` : ''}
         <h3 style="margin:16px 0 8px">Recent movements</h3><div class="table-wrap" style="max-height:220px;overflow:auto"><table class="t"><tbody>${h.movements.slice(0, 25).map(m => `<tr><td>${fmt.date(m.occurred_on)}</td><td>${esc(fmt.status(m.kind))}</td><td class="right num ${m.quantity < 0 ? 'down' : 'up'}">${m.quantity > 0 ? '+' : ''}${fmt.num(m.quantity, 1)}</td><td class="small muted">${esc(m.note || '')}</td></tr>`).join('')}</tbody></table></div>
-        <div class="row" style="margin-top:14px"><a class="btn" href="#/assistant?q=${encodeURIComponent(`Should I restock ${p.name} now, from which supplier, and how much?`)}">${icon('sparkle')} Ask BusinessPilot about ${esc(p.name)}</a></div>`;
+        <div class="row" style="margin-top:14px"><a class="btn" href="#/assistant?q=${encodeURIComponent(`Should I restock ${p.name} now, from which supplier, and how much?`)}">${icon('sparkle')} Ask Beezy about ${esc(p.name)}</a></div>`;
     } catch (err) { document.getElementById('pd').innerHTML = `<p class="muted">${esc(err.message)}</p>`; }
     await back;
   });

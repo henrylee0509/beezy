@@ -18,7 +18,7 @@ DATA_DIR.mkdir(parents=True, exist_ok=True)
 UPLOAD_DIR = DATA_DIR / "uploads"
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
-DATABASE_PATH = os.getenv("BP_DATABASE_PATH", str(DATA_DIR / "businesspilot.db"))
+DATABASE_PATH = os.getenv("BP_DATABASE_PATH", str(DATA_DIR / "beezy.db"))
 FRONTEND_DIR = ROOT_DIR / "frontend"
 
 _secret_file = DATA_DIR / ".jwt_secret"

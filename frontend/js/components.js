@@ -29,7 +29,7 @@ export function bindApprovals(root, after) {
   on(root, 'click', '[data-reject]', async (e, el) => {
     el.disabled = true;
     try {
-      await api.post(`/api/approvals/${el.dataset.reject}/reject`, { reason: 'Rejected from BusinessPilot' });
+      await api.post(`/api/approvals/${el.dataset.reject}/reject`, { reason: 'Rejected from Beezy' });
       toast('Rejected');
       refreshCounts();
       after && after();
@@ -38,10 +38,10 @@ export function bindApprovals(root, after) {
 }
 
 export const DEPTS = {
-  'Inventory Agent': { key: 'inventory', color: '#0d8a80', icon: 'inventory', short: 'Inventory' },
-  'Procurement Agent': { key: 'procurement', color: '#4b4fc4', icon: 'procurement', short: 'Procurement' },
-  'Finance Agent': { key: 'finance', color: '#2456d3', icon: 'finance', short: 'Finance' },
-  'HR & Payroll Agent': { key: 'hr', color: '#7a3e8f', icon: 'payroll', short: 'HR & Payroll' },
-  'Contract Agent': { key: 'contracts', color: '#8a5a2b', icon: 'contracts', short: 'Contracts' },
-  'Business Intelligence Agent': { key: 'bi', color: '#14213d', icon: 'bi', short: 'Intelligence' },
+  'Inventory Agent': { key: 'inventory', color: '#c98f00', icon: 'inventory', short: 'Inventory' },
+  'Procurement Agent': { key: 'procurement', color: '#c2410c', icon: 'procurement', short: 'Procurement' },
+  'Finance Agent': { key: 'finance', color: '#16140f', icon: 'finance', short: 'Finance' },
+  'HR & Payroll Agent': { key: 'hr', color: '#7a5c1e', icon: 'payroll', short: 'HR & Payroll' },
+  'Contract Agent': { key: 'contracts', color: '#57534e', icon: 'contracts', short: 'Contracts' },
+  'Business Intelligence Agent': { key: 'bi', color: '#3f6212', icon: 'bi', short: 'Intelligence' },
 };

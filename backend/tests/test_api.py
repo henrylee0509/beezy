@@ -171,7 +171,7 @@ def test_reset_demo(client, owner):
 
 
 def test_frontend_served(client):
-    assert "BusinessPilot" in client.get("/").text
+    assert "Beezy" in client.get("/").text
     assert client.get("/static/js/app.js").status_code == 200
     assert client.get("/api/nope").status_code == 404
 

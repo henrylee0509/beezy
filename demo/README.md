@@ -18,7 +18,7 @@ export BP_DATA_DIR=/tmp/bp-video PORT=8765 BP_AUTOMATION_INTERVAL_SEC=0
 rm -rf /tmp/bp-video && python run.py &          # fresh demo data every take
 python demo/record_footage.py out/               # ~2 minutes; prints "AI mode: live Muse Spark"
 python demo/render_slides.py out/                # ~4 minutes
-python demo/build_video.py out/ BusinessPilot_demo.mp4
+python demo/build_video.py out/ Beezy_demo.mp4
 ```
 
 - **Captions** follow the AI mode, so they never claim Muse Spark while the app is in mock mode.
