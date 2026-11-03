@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import json
 import os
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, timedelta, timezone
 
 from .. import db
 
@@ -22,7 +22,8 @@ def set_today(d: date | None) -> None:  # used by tests
 
 
 def now_iso() -> str:
-    return datetime.now().replace(microsecond=0).isoformat(sep=" ")
+    """UTC timestamp, the same convention as SQLite's datetime('now') defaults; the UI converts to local time."""
+    return datetime.now(timezone.utc).replace(tzinfo=None, microsecond=0).isoformat(sep=" ")
 
 
 def iso(d: date) -> str:

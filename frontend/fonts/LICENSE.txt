@@ -1,0 +1,6 @@
+Bundled web fonts (Latin subsets, converted to WOFF):
+
+- Inter: Copyright The Inter Project Authors (https://github.com/rsms/inter)
+- Lora: Copyright The Lora Project Authors (https://github.com/cyrealtype/Lora-Cyrillic)
+
+Both are licensed under the SIL Open Font License, Version 1.1: https://openfontlicense.org

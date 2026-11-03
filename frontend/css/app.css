@@ -1,4 +1,13 @@
 /* BusinessPilot — design tokens & components */
+/* Bundled fonts (SIL Open Font License 1.1): Inter for UI, Lora for AI-written prose. */
+@font-face { font-family: "Inter"; src: url("/static/fonts/inter-400.woff") format("woff"); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: "Inter"; src: url("/static/fonts/inter-500.woff") format("woff"); font-weight: 500; font-style: normal; font-display: swap; }
+@font-face { font-family: "Inter"; src: url("/static/fonts/inter-600.woff") format("woff"); font-weight: 600; font-style: normal; font-display: swap; }
+@font-face { font-family: "Inter"; src: url("/static/fonts/inter-700.woff") format("woff"); font-weight: 700; font-style: normal; font-display: swap; }
+@font-face { font-family: "Inter"; src: url("/static/fonts/inter-800.woff") format("woff"); font-weight: 800; font-style: normal; font-display: swap; }
+@font-face { font-family: "Lora"; src: url("/static/fonts/lora-var.woff") format("woff"); font-weight: 400 700; font-style: normal; font-display: swap; }
+@font-face { font-family: "Lora"; src: url("/static/fonts/lora-italic-var.woff") format("woff"); font-weight: 400 700; font-style: italic; font-display: swap; }
+
 :root {
   --paper: #f4f6f9;
   --surface: #ffffff;
@@ -25,8 +34,8 @@
   --radius: 10px;
   --radius-sm: 7px;
   --shadow: 0 1px 2px rgba(20, 33, 61, .05), 0 4px 14px rgba(20, 33, 61, .04);
-  --sans: "Public Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  --serif: "Newsreader", Georgia, "Times New Roman", serif;
+  --sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --serif: "Lora", Georgia, "Times New Roman", serif;
   color-scheme: light;
 }
 :root[data-theme="dark"] {
@@ -37,7 +46,9 @@
 }
 * { box-sizing: border-box; }
 html, body { margin: 0; }
-body { background: var(--paper); color: var(--ink); font: 14px/1.5 var(--sans); font-variant-numeric: tabular-nums; -webkit-font-smoothing: antialiased; }
+body { background: var(--paper); color: var(--ink); font: 14px/1.5 var(--sans); -webkit-font-smoothing: antialiased; }
+/* Tabular figures only where numbers line up; applied globally, Inter also widens hyphens. */
+.t td, .kpi .k-value, .num, .kv dd, .chart text { font-variant-numeric: tabular-nums; }
 a { color: var(--blue); text-decoration: none; }
 a:hover { text-decoration: underline; }
 h1, h2, h3, h4 { margin: 0; line-height: 1.25; letter-spacing: -0.01em; }

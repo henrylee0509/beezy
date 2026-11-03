@@ -1,5 +1,7 @@
 # 3-minute demo script
 
+> The finished, edited video is produced by the pipeline in [`demo/`](../demo/README.md), with a timed voice-over script in [`demo/VOICEOVER.md`](../demo/VOICEOVER.md). The table below is for presenting live instead.
+
 **Before recording:** set `MODEL_API_KEY` in `.env`, start the app, sign in as the owner, go to Settings → *Reset demo data*. Optionally set `META_REASONING_EFFORT=low` for snappier turns. Keep `sample_docs/FreshBake_Pastry_Supply_Agreement_DEMO.pdf` handy.
 
 | Time | Show | Say (suggested) |

@@ -183,9 +183,12 @@ async function route() {
   const page = PAGES.find(p => p.path === path && !p.sep) || PAGES[0];
   document.querySelectorAll('#nav a').forEach(a => a.classList.toggle('active', a.dataset.path === page.path));
   document.getElementById('sidebar')?.classList.remove('open');
-  const content = document.getElementById('content');
-  if (!content) return;
+  const old = document.getElementById('content');
+  if (!old) return;
   if (cleanup) { try { cleanup(); } catch (e) { /* ignore */ } cleanup = null; }
+  // A fresh container per navigation, so listeners bound by the previous page visit don't pile up.
+  const content = old.cloneNode(false);
+  old.replaceWith(content);
   if (!can(page.perm)) { content.innerHTML = `<div class="empty"><h3>Not available for your role</h3><p>Ask the owner for access.</p></div>`; return; }
   content.innerHTML = '';
   document.title = `${page.label} · BusinessPilot`;

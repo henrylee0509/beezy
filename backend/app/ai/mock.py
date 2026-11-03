@@ -6,7 +6,9 @@ it never pretends to be Muse Spark.
 """
 from __future__ import annotations
 
+import os
 import re
+import time
 
 from .tools import TOOL_MAP, ToolError, execute, tools_for
 
@@ -18,6 +20,9 @@ ROUTES = [
     ("contracts", r"contract|agreement|lease|renew|expir|clause|notice|rental"),
     ("bi", r"health|priorit|problem|recommend|overview|how is (my|the) business|briefing|afford|focus|summary|biggest|issues"),
 ]
+# Optional pacing for screen recordings so the operations floor is visible (still labelled mock).
+STEP_DELAY = int(os.getenv("BP_MOCK_STEP_DELAY_MS", "0")) / 1000
+
 ALL = ["inventory", "procurement", "finance", "hr", "contracts", "bi"]
 
 
@@ -56,6 +61,8 @@ def _call(run, key, tool_name, args=None):
         run.emit(name, "tool_error", f"{tool_name}: permission denied", {"tool": tool_name})
         return None
     run.emit(name, "tool_call", tool.label or tool_name, {"tool": tool_name, "args": args or {}, "action": tool.action})
+    if STEP_DELAY:
+        time.sleep(STEP_DELAY)
     try:
         res = execute(tool, run.ctx, args or {})
     except ToolError as e:
@@ -82,6 +89,8 @@ def run_mock(run, text: str) -> str:
     for key in agents:
         name = NAMES[key]
         run.emit(name, "agent_started", f"{name} started", {"task": "deterministic routing"})
+        if STEP_DELAY:
+            time.sleep(STEP_DELAY / 2)
         if name not in run.agents_used:
             run.agents_used.append(name)
         for tn in AGENT_TOOLS[key]:

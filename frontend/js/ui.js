@@ -3,6 +3,9 @@ export const esc = (v) => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp
 
 export const state = { me: null, currency: 'USD' };
 
+// Server timestamps are UTC without a zone suffix ("2026-11-03 04:48:00"); mark them as UTC so the browser shows local time.
+const parseTs = (s) => new Date(/^\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}(:\d{2})?$/.test(s) ? s.replace(' ', 'T') + 'Z' : s.replace(' ', 'T'));
+
 export const fmt = {
   money(n, opts = {}) {
     if (n === null || n === undefined || Number.isNaN(n)) return '—';
@@ -20,13 +23,13 @@ export const fmt = {
   pct(n, signed = false) { if (n === null || n === undefined) return '—'; return (signed && n > 0 ? '+' : '') + Number(n).toFixed(1) + '%'; },
   date(s) {
     if (!s) return '—';
-    const d = new Date(String(s).length <= 10 ? s + 'T00:00:00' : s.replace(' ', 'T'));
+    const d = String(s).length <= 10 ? new Date(s + 'T00:00:00') : parseTs(String(s));
     if (Number.isNaN(d.getTime())) return s;
     return d.toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: d.getFullYear() !== new Date().getFullYear() ? 'numeric' : undefined });
   },
   datetime(s) {
     if (!s) return '—';
-    const d = new Date(s.replace(' ', 'T'));
+    const d = parseTs(String(s));
     return Number.isNaN(d.getTime()) ? s : d.toLocaleString(undefined, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
   },
   rel(days) { if (days === null || days === undefined) return '—'; if (days === 0) return 'today'; return days > 0 ? `in ${days} day${days === 1 ? '' : 's'}` : `${-days} day${days === -1 ? '' : 's'} ago`; },
