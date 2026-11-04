@@ -1,4 +1,4 @@
-# Built during the Meta Global AI Developer Hackathon (Oct 27 – Nov 4, 2026)
+# Built during the Meta Global AI Developer Hackathon (Oct 26 – Nov 4, 2026)
 
 Everything in this repository was written during the hackathon building period; no pre-existing product code was reused.
 
@@ -10,6 +10,9 @@ New work:
 - Muse Voice Transcribe integration with an in-browser 16 kHz WAV recorder (`frontend/js/voice.js`).
 - Contract extraction with Muse Spark (page-cited clauses) plus a rule-based fallback.
 - Approval queue with server-enforced spending limits; automation engine; insights detectors; cash-flow and demand forecasting; payroll rules engine.
-- Full web app (11 pages), demo data generator, PDF/CSV reports, 53 automated tests including a protocol-level fake of the Meta Model API.
+- Full web app (11 pages) with a yellow-and-black bee design system, demo data generator, PDF/CSV reports, 53 automated tests including a protocol-level fake of the Meta Model API.
+- Visual answer cards built from verified tool data (business pulse, honeycomb stock gauges, cash runway, payroll issues, contract deadline timeline, priorities), one-click Approve all for drafted purchase orders, quick-action prompts (`backend/app/ai/cards.py`, `frontend/js/cards.js`).
+- Contracts page with drag-and-drop upload and a 90-day deadline timeline; automations shown as When → actions → Owner approves flows.
+- Demo video pipeline: slides rendered frame by frame, scripted product footage, subtitles and original synthesised music (`demo/`).
 
 Meta models used: `muse-spark-1.3` (chat completions + function calling), `muse-voice-transcribe-1.0` (`/v1/asr/transcribe`).
