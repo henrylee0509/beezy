@@ -1,97 +1,97 @@
 [
  {
   "id": "01",
-  "start": 0,
+  "start": 0.0,
   "scene": "Title",
   "text": "Hi, I'm Henry. This is Beezy: an AI operations team for small businesses, built on Meta's Muse Spark."
  },
  {
   "id": "02",
-  "start": 8,
+  "start": 8.5,
   "scene": "Six systems",
   "text": "Small business owners like Mia run everything across tools that never talk to each other: a stock spreadsheet, supplier emails, a payroll calculator, a contract folder. Problems show up after they've cost money."
  },
  {
   "id": "03",
-  "start": 20,
+  "start": 20.5,
   "scene": "The idea",
   "text": "Beezy gives her six AI departments. They spot problems, prepare the work, and then they wait. Nothing that spends money happens without her approval."
  },
  {
   "id": "04",
-  "start": 31,
+  "start": 31.5,
   "scene": "Architecture",
   "text": "An Executive Assistant on Muse Spark plans each request and consults specialist agents in parallel. Their tools run deterministic code, so the model decides but never does the maths. And a verifier checks every figure."
  },
  {
   "id": "05",
-  "start": 47,
+  "start": 47.0,
   "scene": "Overview",
   "text": "Mia signs in to a morning briefing that pulls the key numbers from every department, each one checked against her records."
  },
  {
   "id": "06",
-  "start": 59,
+  "start": 59.03,
   "scene": "Health check",
   "text": "She asks for a health check. The Executive Assistant decides which departments it needs, and you can watch each one work through real tool calls on her data. She gets a short summary and visual cards built from her records."
  },
  {
   "id": "07",
-  "start": 78,
+  "start": 78.03,
   "scene": "Under the hood",
   "text": "Here's that request as Muse Spark sees it. Six agents are offered as tools, Muse Spark calls them in parallel, and the real data flows back. Voice commands use Muse Voice Transcribe."
  },
  {
   "id": "08",
-  "start": 91,
+  "start": 91.53,
   "scene": "Restock",
-  "text": "Now one tap asks it to act: restock everything that's running low. The Procurement agent drafts three purchase orders, but only drafts them. One click on Approve all, and they're sent to suppliers."
+  "text": "Now one tap asks it to act: restock everything that's running low. The Procurement agent drafts three purchase orders, but only drafts them. One click on Approve all, and they're sent to suppliers. In this version, sending is simulated."
  },
  {
   "id": "09",
-  "start": 106,
+  "start": 105.23,
   "scene": "Supplier choice",
   "text": "Why Highland Roasters and not the cheaper supplier? The cheaper one can't deliver before the beans run out in four days. That comparison is plain, testable code."
  },
  {
   "id": "10",
-  "start": 115,
+  "start": 114.23,
   "scene": "Contracts",
   "text": "Every contract deadline sits on one timeline, with notice deadlines in red. She drops in a new pastry contract, and the Contract agent pulls out the terms and the notice clause, with page references."
  },
  {
   "id": "11",
-  "start": 130,
+  "start": 129.23,
   "scene": "Payroll",
   "text": "Payroll is calculated in code, never by the model, and it flags problems before payday: one missing timesheet, one missing bank account."
  },
  {
   "id": "12",
-  "start": 138,
+  "start": 137.27,
   "scene": "Automation",
   "text": "Automations react on their own. When oat milk drops below twenty percent, a purchase order is drafted for approval straight away."
  },
  {
   "id": "13",
-  "start": 147,
+  "start": 146.27,
   "scene": "Rules",
   "text": "Each rule shows exactly how it works, and every one ends with the owner approving."
  },
  {
   "id": "14",
-  "start": 153,
+  "start": 152.3,
   "scene": "Built to be trusted",
   "text": "That's what makes it trustworthy: verified figures, human approval for anything involving money, role-aware agents, and fifty-three automated tests, including the Muse Spark tool-calling path."
  },
  {
   "id": "15",
-  "start": 163,
+  "start": 161.8,
   "scene": "What's next",
   "text": "Next: live sales and bank feeds, orders sent straight to suppliers, and verified payroll packs."
  },
  {
   "id": "16",
-  "start": 169,
+  "start": 168.3,
   "scene": "Close",
   "text": "Detect. Prepare. You approve. That's Beezy. Thanks for watching."
  }

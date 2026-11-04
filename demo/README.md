@@ -25,3 +25,18 @@ python demo/build_video.py out/ Beezy_demo.mp4
 - **Long model turns** are sped up to fit each scene's time slot (the speed-up is printed per clip). The answer and the operations-floor activity are real.
 - **Mock-mode pacing:** `BP_MOCK_STEP_DELAY_MS=420` only slows the mock planner so its steps are visible on camera. It has no effect in live mode.
 - **Re-recording one scene:** run `python demo/record_footage.py out/ health`, then rebuild.
+
+## Subtitles and music (the submitted cut)
+
+The submitted video has burnt-in subtitles and an original music track instead of a voice-over:
+
+```bash
+BZ_NO_CAPTIONS=1 python demo/record_footage.py out/      # footage without on-screen captions
+python demo/render_slides.py out/ && python demo/build_video.py out/ out/Beezy_clean.mp4
+python demo/make_subtitles.py demo/voice_kit/lines.json out/        # Beezy_demo.srt + styled .ass
+python demo/make_music.py out/music.wav 177.3                       # synthesised, no samples or licences
+ffmpeg -i out/Beezy_clean.mp4 -i out/music.wav -filter_complex "[0:v]ass=out/Beezy_demo.ass[v];[1:a]loudnorm=I=-18:TP=-2[a]" \
+  -map "[v]" -map "[a]" -c:v libx264 -crf 18 -c:a aac -shortest Beezy_final.mp4
+```
+
+`lines.json` holds each scene's start time and subtitle text; update the starts from `out/timeline.txt` if a scene's length changes.

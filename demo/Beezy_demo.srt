@@ -1,0 +1,207 @@
+1
+00:00:00,300 --> 00:00:01,460
+Hi, I'm Henry.
+
+2
+00:00:01,500 --> 00:00:05,096
+This is Beezy: an AI operations team for small businesses,
+
+3
+00:00:05,136 --> 00:00:06,789
+built on Meta's Muse Spark.
+
+4
+00:00:08,800 --> 00:00:11,933
+Small business owners like Mia run everything across tools
+
+5
+00:00:11,973 --> 00:00:14,723
+that never talk to each other: a stock spreadsheet,
+
+6
+00:00:14,763 --> 00:00:17,842
+supplier emails, a payroll calculator, a contract folder.
+
+7
+00:00:17,882 --> 00:00:20,139
+Problems show up after they've cost money.
+
+8
+00:00:20,800 --> 00:00:22,730
+Beezy gives her six AI departments.
+
+9
+00:00:22,770 --> 00:00:25,939
+They spot problems, prepare the work, and then they wait.
+
+10
+00:00:25,979 --> 00:00:29,036
+Nothing that spends money happens without her approval.
+
+11
+00:00:31,800 --> 00:00:34,411
+An Executive Assistant on Muse Spark plans each
+
+12
+00:00:34,451 --> 00:00:37,287
+request and consults specialist agents in parallel.
+
+13
+00:00:37,327 --> 00:00:39,261
+Their tools run deterministic code,
+
+14
+00:00:39,301 --> 00:00:41,855
+so the model decides but never does the maths.
+
+15
+00:00:41,895 --> 00:00:43,829
+And a verifier checks every figure.
+
+16
+00:00:47,300 --> 00:00:50,192
+Mia signs in to a morning briefing that pulls the
+
+17
+00:00:50,232 --> 00:00:54,501
+key numbers from every department, each one checked against her records.
+
+18
+00:00:59,330 --> 00:01:01,054
+She asks for a health check.
+
+19
+00:01:01,094 --> 00:01:05,525
+The Executive Assistant decides which departments it needs, and you can
+
+20
+00:01:05,565 --> 00:01:09,052
+watch each one work through real tool calls on her data.
+
+21
+00:01:09,092 --> 00:01:10,816
+She gets a short summary and
+
+22
+00:01:10,856 --> 00:01:13,083
+visual cards built from her records.
+
+23
+00:01:18,330 --> 00:01:20,879
+Here's that request as Muse Spark sees it.
+
+24
+00:01:20,919 --> 00:01:23,900
+Six agents are offered as tools, Muse Spark calls
+
+25
+00:01:23,940 --> 00:01:26,797
+them in parallel, and the real data flows back.
+
+26
+00:01:26,837 --> 00:01:29,324
+Voice commands use Muse Voice Transcribe.
+
+27
+00:01:31,830 --> 00:01:33,332
+Now one tap asks it to act:
+
+28
+00:01:33,372 --> 00:01:35,502
+restock everything that's running low.
+
+29
+00:01:35,542 --> 00:01:39,671
+The Procurement agent drafts three purchase orders, but only drafts them.
+
+30
+00:01:39,711 --> 00:01:42,870
+One click on Approve all, and they're sent to suppliers.
+
+31
+00:01:42,910 --> 00:01:45,040
+In this version, sending is simulated.
+
+32
+00:01:45,530 --> 00:01:48,250
+Why Highland Roasters and not the cheaper supplier?
+
+33
+00:01:48,290 --> 00:01:50,198
+The cheaper one can't deliver before
+
+34
+00:01:50,238 --> 00:01:51,875
+the beans run out in four days.
+
+35
+00:01:51,915 --> 00:01:54,040
+That comparison is plain, testable code.
+
+36
+00:01:54,530 --> 00:01:57,182
+Every contract deadline sits on one timeline,
+
+37
+00:01:57,222 --> 00:01:58,916
+with notice deadlines in red.
+
+38
+00:01:58,956 --> 00:02:02,386
+She drops in a new pastry contract, and the Contract agent
+
+39
+00:02:02,426 --> 00:02:06,214
+pulls out the terms and the notice clause, with page references.
+
+40
+00:02:09,530 --> 00:02:12,300
+Payroll is calculated in code, never by the model,
+
+41
+00:02:12,340 --> 00:02:17,076
+and it flags problems before payday: one missing timesheet, one missing bank account.
+
+42
+00:02:17,570 --> 00:02:19,298
+Automations react on their own.
+
+43
+00:02:19,338 --> 00:02:21,635
+When oat milk drops below twenty percent,
+
+44
+00:02:21,675 --> 00:02:24,771
+a purchase order is drafted for approval straight away.
+
+45
+00:02:26,570 --> 00:02:28,893
+Each rule shows exactly how it works,
+
+46
+00:02:28,933 --> 00:02:31,702
+and every one ends with the owner approving.
+
+47
+00:02:32,600 --> 00:02:34,874
+That's what makes it trustworthy: verified figures,
+
+48
+00:02:34,914 --> 00:02:39,230
+human approval for anything involving money, role-aware agents, and fifty-three automated tests,
+
+49
+00:02:39,270 --> 00:02:41,181
+including the Muse Spark tool-calling path.
+
+50
+00:02:42,100 --> 00:02:43,821
+Next: live sales and bank feeds,
+
+51
+00:02:43,861 --> 00:02:47,232
+orders sent straight to suppliers, and verified payroll packs.
+
+52
+00:02:48,600 --> 00:02:53,600
+Detect. Prepare. You approve. That's Beezy. Thanks for watching.

@@ -10,6 +10,7 @@ With MODEL_API_KEY set, the footage shows live Muse Spark; slow model turns are 
 Usage:  python demo/record_footage.py OUT_DIR [--url http://localhost:8765] [segment ...]
 """
 import argparse
+import os
 import asyncio
 import base64
 import math
@@ -156,6 +157,8 @@ class Recorder:
         await self.page.mouse.up()
 
     async def cap(self, text=None, sub=None):
+        if os.environ.get("BZ_NO_CAPTIONS"):   # subtitles carry the words instead
+            return
         await self.page.evaluate("([t, s]) => window.__cap(t, s)", [text, sub])
 
     async def cam(self, locator=None, scale=1.0):
