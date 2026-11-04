@@ -3,18 +3,19 @@ import { api, getToken, setToken, setUnauthorizedHandler } from './api.js';
 import { can, errToast, esc, icon, on, state, toast } from './ui.js';
 
 const PAGES = [
-  { path: 'overview', label: 'Overview', icon: 'overview', perm: 'dashboard.read' },
-  { path: 'assistant', label: 'AI Business Assistant', icon: 'assistant', perm: 'assistant.use' },
-  { path: 'inventory', label: 'Inventory', icon: 'inventory', perm: 'inventory.read' },
-  { path: 'finance', label: 'Finance', icon: 'finance', perm: 'finance.read' },
-  { path: 'payroll', label: 'Employees & Payroll', icon: 'payroll', perm: 'employees.read' },
+  { path: 'overview', label: 'Home', icon: 'overview', perm: 'dashboard.read', hint: 'Your business today' },
+  { path: 'assistant', label: 'Ask Beezy', icon: 'assistant', perm: 'assistant.use', hint: 'Ask a question or get work done' },
+  { path: 'approvals', label: 'To approve', icon: 'approvals', perm: 'approvals.read', hint: 'Orders and pay waiting for your OK' },
+  { group: 'Your business' },
+  { path: 'inventory', label: 'Stock', icon: 'inventory', perm: 'inventory.read' },
+  { path: 'procurement', label: 'Suppliers & orders', icon: 'procurement', perm: 'procurement.read' },
+  { path: 'finance', label: 'Money', icon: 'finance', perm: 'finance.read' },
+  { path: 'payroll', label: 'Staff & pay', icon: 'payroll', perm: 'employees.read' },
   { path: 'contracts', label: 'Contracts', icon: 'contracts', perm: 'contracts.read' },
-  { path: 'procurement', label: 'Suppliers & Procurement', icon: 'procurement', perm: 'procurement.read' },
-  { path: 'insights', label: 'Business Insights', icon: 'insights', perm: 'insights.read' },
-  { path: 'automations', label: 'Automations', icon: 'automations', perm: 'automations.read' },
+  { group: 'More' },
+  { path: 'insights', label: 'Insights', icon: 'insights', perm: 'insights.read' },
+  { path: 'automations', label: 'Automatic tasks', icon: 'automations', perm: 'automations.read' },
   { path: 'reports', label: 'Reports', icon: 'reports', perm: 'reports.read' },
-  { sep: true },
-  { path: 'approvals', label: 'Approvals', icon: 'approvals', perm: 'approvals.read' },
   { path: 'activity', label: 'Activity log', icon: 'audit', perm: 'audit.read' },
   { path: 'settings', label: 'Settings', icon: 'settings', perm: 'dashboard.read' },
 ];
@@ -117,14 +118,42 @@ function logo() {
 }
 
 // ---------------------------------------------------------------- shell
+// Sidebar: the three main jobs, then sections that open and close like drop-downs (remembered per browser).
+const GROUP_DEFAULT_OPEN = { 'Your business': true, More: false };
+function groupOpen(g) {
+  try { const v = localStorage.getItem(`bz.nav.${g}`); if (v !== null) return v === '1'; } catch (e) { /* storage unavailable */ }
+  return GROUP_DEFAULT_OPEN[g] !== false;
+}
+function setGroupOpen(g, open) {
+  try { localStorage.setItem(`bz.nav.${g}`, open ? '1' : '0'); } catch (e) { /* storage unavailable */ }
+  const btn = document.querySelector(`.nav-group[data-group="${CSS.escape(g)}"]`);
+  const sub = document.querySelector(`.nav-sub[data-sub="${CSS.escape(g)}"]`);
+  if (btn && sub) { btn.setAttribute('aria-expanded', String(open)); sub.hidden = !open; }
+}
+function navItem(p) {
+  if (!can(p.perm)) return '';
+  return `<a href="#/${p.path}" data-path="${p.path}" class="${p.hint ? 'main' : ''}">${icon(p.icon)}<span class="lbl">${p.label}${p.hint ? `<small>${p.hint}</small>` : ''}</span>${p.path === 'approvals' ? '<span class="count hidden" id="navCount"></span>' : ''}</a>`;
+}
+function navHTML() {
+  let html = '', inGroup = false;
+  for (const p of PAGES) {
+    if (p.group) {
+      if (inGroup) html += '</div>';
+      const open = groupOpen(p.group);
+      html += `<button type="button" class="nav-group" data-group="${p.group}" aria-expanded="${open}">${p.group}${icon('chev')}</button><div class="nav-sub" data-sub="${p.group}"${open ? '' : ' hidden'}>`;
+      inGroup = true;
+    } else html += navItem(p);
+  }
+  return html + (inGroup ? '</div>' : '');
+}
+
 function renderShell() {
   const me = state.me;
   const mock = me.ai.mode !== 'real';
   app.innerHTML = `<div class="shell">
     <aside class="sidebar" id="sidebar">
       <div class="brand"><div class="brand-mark">${logo()}</div><div><div class="brand-name">Beezy</div><div class="brand-sub">Your AI operations team</div></div></div>
-      <nav class="nav" id="nav" aria-label="Main">${PAGES.map(p => p.sep ? '<div class="nav-sep"></div>' : (can(p.perm) ?
-        `<a href="#/${p.path}" data-path="${p.path}">${icon(p.icon)}<span>${p.label}</span>${p.path === 'approvals' ? '<span class="count hidden" id="navCount"></span>' : ''}</a>` : '')).join('')}</nav>
+      <nav class="nav" id="nav" aria-label="Main">${navHTML()}</nav>
       <div class="sidebar-foot">
         <div><b style="color:var(--ink)">${esc(me.user.name)}</b></div>
         <div>${esc(me.role.charAt(0) + me.role.slice(1).toLowerCase())} · ${esc(me.business.name)}</div>
@@ -148,6 +177,7 @@ function renderShell() {
     </div>
   </div>`;
   document.getElementById('menuBtn').onclick = () => document.getElementById('sidebar').classList.toggle('open');
+  document.querySelectorAll('.nav-group').forEach(b => { b.onclick = () => setGroupOpen(b.dataset.group, b.getAttribute('aria-expanded') !== 'true'); });
   document.getElementById('logoutBtn').onclick = async () => { try { await api.post('/api/auth/logout'); } catch (e) { /* ignore */ } setToken(null); state.me = null; location.hash = ''; renderAuth(); };
   document.getElementById('themeBtn').onclick = () => {
     const root = document.documentElement;
@@ -180,8 +210,10 @@ export function rerenderShell(me) { if (me) setMe(me); renderShell(); }
 async function route() {
   if (!state.me) return;
   const [path, query] = (location.hash.replace(/^#\/?/, '') || 'overview').split('?');
-  const page = PAGES.find(p => p.path === path && !p.sep) || PAGES[0];
+  const page = PAGES.find(p => p.path === path && !p.group) || PAGES[0];
   document.querySelectorAll('#nav a').forEach(a => a.classList.toggle('active', a.dataset.path === page.path));
+  const activeSub = document.querySelector(`#nav a[data-path="${page.path}"]`)?.closest('.nav-sub');
+  if (activeSub && activeSub.hidden) setGroupOpen(activeSub.dataset.sub, true);
   document.getElementById('sidebar')?.classList.remove('open');
   const old = document.getElementById('content');
   if (!old) return;

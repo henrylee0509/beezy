@@ -4,7 +4,7 @@ import { errToast, esc, fmt, on, skeleton, statusBadge } from '../ui.js';
 
 export async function render(el) {
   let status = 'PENDING';
-  el.innerHTML = `<div class="page-head"><div><h1>Approvals</h1><div class="lead">Everything the agents and automations prepared that commits money. Approval rights are enforced by the server, not by the AI.</div></div>
+  el.innerHTML = `<div class="page-head"><div><h1>To approve</h1><div class="lead">Everything the agents and automations prepared that commits money. Approval rights are enforced by the server, not by the AI.</div></div>
     <div class="actions"><div class="seg">${[['PENDING', 'Pending'], ['ALL', 'History']].map(([k, l]) => `<button data-s="${k}" class="${k === status ? 'on' : ''}">${l}</button>`).join('')}</div></div></div>
     <section class="panel"><div class="panel-body" id="list">${skeleton(4)}</div></section>`;
   const box = el.querySelector('#list');

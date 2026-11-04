@@ -1,3 +1,4 @@
+import { bindPicker, pickerHTML } from '../taskpicker.js';
 import { api } from '../api.js';
 import { barChart, donut, hbars, lineChart, PALETTE } from '../charts.js';
 import { approvalRow, bindApprovals } from '../components.js';
@@ -10,6 +11,9 @@ export async function render(el) {
   el.innerHTML = `<div class="page-head"><div><h1>${greet}, ${esc(me.user.name.split(' ')[0])}</h1>
     <div class="lead">Here is how ${esc(me.business.name)} is doing today.</div></div>
     <div class="actions"><a class="btn" href="#/assistant?q=${encodeURIComponent('Give me a health check of my business. Check my inventory, upcoming expenses, payroll and cash flow. Tell me what I should prioritise.')}">${icon('sparkle')} Run a health check</a></div></div>
+    ${can('assistant.use') ? `<section class="panel bz-pickpanel" style="margin-bottom:16px"><div class="panel-body">
+      <h2>What would you like to do?</h2><p class="muted">Choose from the lists and Beezy's team gets to work. Anything that spends money waits for your OK.</p>
+      ${pickerHTML()}</div></section>` : ''}
     <div class="grid g-2-1" style="margin-bottom:16px">
       <section class="panel" id="briefing">${can('finance.read') ? `<div class="briefing">${skeleton(4)}</div>` : ''}</section>
       <section class="panel" id="decisions"><div class="panel-body">${skeleton(3)}</div></section>
@@ -18,6 +22,7 @@ export async function render(el) {
     <div id="charts" class="grid g2"></div>
     <section class="panel" style="margin-top:16px"><div class="panel-head"><h2>Business alerts</h2><span class="sub" id="alertCount"></span></div><div class="panel-body"><div class="alerts" id="alerts"></div></div></section>`;
   if (!can('finance.read')) document.getElementById('briefing').remove(), el.querySelector('.g-2-1').style.gridTemplateColumns = '1fr';
+  bindPicker(el, (q) => { location.hash = `#/assistant?q=${encodeURIComponent(q)}`; });
 
   const loadDecisions = async () => {
     const box = document.getElementById('decisions');

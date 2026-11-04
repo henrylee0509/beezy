@@ -5,7 +5,7 @@ const LINKS = { Inventory: '#/inventory', Finance: '#/finance', Payroll: '#/payr
 
 export async function render(el) {
   let filter = 'open';
-  el.innerHTML = `<div class="page-head"><div><h1>Business insights</h1><div class="lead">Each recommendation comes from a rule that watches your data, with the supporting numbers attached. Muse Spark can explain any of them in plain language; it cannot add figures of its own.</div></div>
+  el.innerHTML = `<div class="page-head"><div><h1>Insights</h1><div class="lead">Each recommendation comes from a rule that watches your data, with the supporting numbers attached. Muse Spark can explain any of them in plain language; it cannot add figures of its own.</div></div>
     <div class="actions"><div class="seg"><button data-f="open" class="on">Open</button><button data-f="all">All</button></div><button class="btn" id="refresh">${icon('refresh')} Re-scan data</button></div></div>
     <div id="list">${skeleton(6)}</div>`;
   let data;

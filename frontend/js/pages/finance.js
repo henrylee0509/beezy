@@ -7,7 +7,7 @@ export async function render(el, params) {
   let tab = params.get('tab') || 'overview';
   let meta = { income_categories: [], expense_categories: [], definitions: {} };
   try { meta = await api.get('/api/finance/meta'); } catch (e) { /* ignore */ }
-  el.innerHTML = `<div class="page-head"><div><h1>Finance</h1><div class="lead">Income, spending, cash and what is coming due. Figures come from recorded transactions (cash basis); this is not certified accounting or tax advice.</div></div>
+  el.innerHTML = `<div class="page-head"><div><h1>Money</h1><div class="lead">Income, spending, cash and what is coming due. Figures come from recorded transactions (cash basis); this is not certified accounting or tax advice.</div></div>
     <div class="actions"><a class="btn" href="#/assistant?q=${encodeURIComponent('How much money came in and went out over the last 30 days, which expenses increased the most, and is my cash position healthy for the next month?')}">${icon('sparkle')} Ask about cash</a>
     ${can('finance.write') ? `<button class="btn" data-new="INCOME">${icon('plus')} Income</button><button class="btn primary" data-new="EXPENSE">${icon('plus')} Expense</button>` : ''}</div></div>
     <div class="tabs" role="tablist">${[['overview', 'Overview'], ['forecast', 'Cash-flow forecast'], ['transactions', 'Transactions'], ['invoices', 'Invoices & bills']].map(([k, l]) => `<button role="tab" data-tab="${k}" class="${tab === k ? 'on' : ''}">${l}</button>`).join('')}</div>

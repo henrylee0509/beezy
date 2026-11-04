@@ -4,7 +4,7 @@ import { can, confirmBox, errToast, esc, field, fmt, icon, modal, on, skeleton, 
 
 export async function render(el, params) {
   let tab = params.get('tab') || 'orders';
-  el.innerHTML = `<div class="page-head"><div><h1>Suppliers &amp; procurement</h1><div class="lead">Purchase orders move from draft to approval to supplier. Supplier submission is simulated in this version; no real orders or payments are sent.</div></div>
+  el.innerHTML = `<div class="page-head"><div><h1>Suppliers &amp; orders</h1><div class="lead">Purchase orders move from draft to approval to supplier. Supplier submission is simulated in this version; no real orders or payments are sent.</div></div>
     <div class="actions"><a class="btn" href="#/assistant?q=${encodeURIComponent('Find the best supplier for each low-stock product, considering price, delivery time and our stockout dates, and prepare the purchase orders.')}">${icon('sparkle')} Ask the Procurement Agent</a>
     ${can('procurement.write') ? `<button class="btn primary" id="newPo">${icon('plus')} New purchase order</button>` : ''}</div></div>
     <div class="tabs">${[['orders', 'Purchase orders'], ['suppliers', 'Suppliers']].map(([k, l]) => `<button data-tab="${k}" class="${tab === k ? 'on' : ''}">${l}</button>`).join('')}</div><div id="pane">${skeleton(5)}</div>`;

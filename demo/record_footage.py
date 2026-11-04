@@ -179,6 +179,7 @@ class Recorder:
 async def seg_overview(r: Recorder, url):
     p = r.page
     await p.goto(url + "/")
+    await p.evaluate("() => { try { localStorage.setItem('bz.nav.More', '1'); } catch (e) {} }")  # keep every sidebar section open on camera
     await p.wait_for_selector("[data-demo]")
     await r.clip_start()
     await asyncio.sleep(0.8)

@@ -4,6 +4,7 @@ import { bindApprovals, DEPTS } from '../components.js';
 import { aiSource, errToast, esc, fmt, icon, md, on, state, statusBadge, toast } from '../ui.js';
 import { WavRecorder } from '../voice.js';
 import { ordersCard, renderCards } from '../cards.js';
+import { bindPicker, pickerHTML } from '../taskpicker.js';
 
 const SUGGESTIONS = [
   'Give me a health check of my business. Check my inventory, upcoming expenses, payroll and cash flow. Tell me what I should prioritise.',
@@ -26,7 +27,7 @@ let sessionId = null;
 
 export async function render(el, params) {
   let polling = null, running = false, recorder = null, approvalsById = {};
-  el.innerHTML = `<div class="page-head"><div><h1>AI Business Assistant</h1>
+  el.innerHTML = `<div class="page-head"><div><h1>Ask Beezy</h1>
       <div class="lead">Ask in plain language. The Executive Assistant decides which departments to involve, they work through your real records, and anything that spends money waits for your approval.</div></div>
       <div class="actions"><select class="input" id="sessionSel" style="width:auto" aria-label="Conversation"></select><button class="btn" id="newChat">${icon('plus')} New conversation</button></div></div>
     <div class="assistant-layout">
@@ -60,7 +61,7 @@ export async function render(el, params) {
   async function loadSessions() {
     const r = await api.get('/api/assistant/sessions');
     const sel = el.querySelector('#sessionSel');
-    sel.innerHTML = `<option value="">New conversation</option>` + r.sessions.map(s => `<option value="${s.id}" ${s.id === sessionId ? 'selected' : ''}>${esc((s.title || 'Conversation').slice(0, 48))}</option>`).join('');
+    sel.innerHTML = `<option value="">Past conversations</option>` + r.sessions.map(s => `<option value="${s.id}" ${s.id === sessionId ? 'selected' : ''}>${esc((s.title || 'Conversation').slice(0, 48))}</option>`).join('');
   }
 
   let session = null;
@@ -69,12 +70,15 @@ export async function render(el, params) {
       session = null;
       msgs.innerHTML = `<div style="margin:auto 0;padding:20px 4px">
         <div class="ai-prose" style="font-size:22px;max-width:30ch;margin-bottom:6px">What should your team look at today?</div>
-        <p class="muted" style="margin-bottom:14px">Try one of these, or ask your own question. You can also hold the microphone and speak.</p>
-        <div class="suggestions">${SUGGESTIONS.map(s => `<button class="suggestion" data-suggest="${esc(s)}">${esc(s)}</button>`).join('')}</div></div>`;
+        <p class="muted" style="margin-bottom:14px">Pick what you want to do from the lists, or type your own question in the box below. You can also hold the microphone and speak.</p>
+        ${pickerHTML()}
+        <details class="bz-more-ideas"><summary>More example questions</summary>
+        <div class="suggestions">${SUGGESTIONS.map(s => `<button class="suggestion" data-suggest="${esc(s)}">${esc(s)}</button>`).join('')}</div></details></div>`;
+      bindPicker(msgs, send);
       return;
     }
     session = await api.get(`/api/assistant/sessions/${sessionId}`);
-    msgs.innerHTML = session.messages.map(renderMsg).join('') + (running ? `<div class="msg assistant" id="thinking"><div class="who">Beezy</div><div class="muted">Working on it — follow the operations floor.</div></div>` : '');
+    msgs.innerHTML = session.messages.map(renderMsg).join('') + (running ? `<div class="msg assistant" id="thinking">${progressHTML()}</div>` : '');
     msgs.lastElementChild?.scrollIntoView({ block: 'end', behavior: 'smooth' });
   }
 
@@ -92,6 +96,81 @@ export async function render(el, params) {
       ${orders || cards ? `<div class="bz-cards">${orders}${cards}</div>` : ''}</div>`;
   }
 
+  // ---------------- in-chat progress (what the team is doing right now)
+  const STAGES = ['Understand', 'Gather data', 'Write answer', 'Check figures'];
+  let prog = null, progTimer = null;
+  function progReset() {
+    prog = { stage: 0, start: Date.now(), mode: state.me.ai.mode, head: 'Reading your request', agents: [], note: '' };
+    clearInterval(progTimer);
+    progTimer = setInterval(() => { const t = msgs.querySelector('#progTime'); if (t && prog) t.textContent = fmtSecs(Date.now() - prog.start); hint(); }, 1000);
+  }
+  const fmtSecs = (ms) => { const s = Math.floor(ms / 1000); return s < 60 ? `${s}s` : `${Math.floor(s / 60)}m ${String(s % 60).padStart(2, '0')}s`; };
+  const agentRow = (name) => {
+    let a = prog.agents.find(x => x.name === name);
+    if (!a) { a = { name, status: 'queued', text: 'Waiting to start', tools: 0 }; prog.agents.push(a); }
+    return a;
+  };
+  function hint() {
+    const h = msgs.querySelector('#progHint');
+    if (!h || !prog) return;
+    const slow = Date.now() - prog.start > 7000;
+    h.hidden = !slow;
+    if (slow) h.textContent = prog.mode === 'real'
+      ? 'Live answers take a little longer: each department reasons with Muse Spark and calls its own tools. The answer appears here when it is ready.'
+      : 'Still working. The answer appears here when it is ready.';
+  }
+  function progressHTML() {
+    if (!prog) return '';
+    const done = prog.agents.filter(a => a.status === 'done').length;
+    const steps = STAGES.map((label, i) => `<li class="${i < prog.stage ? 'done' : i === prog.stage ? 'now' : ''}">
+        <span class="dot">${i < prog.stage ? icon('check') : ''}</span>${label}</li>`).join('');
+    const rows = prog.agents.map(a => {
+      const d = DEPTS[a.name] || { color: 'var(--ink-2)', icon: 'assistant', short: a.name };
+      return `<div class="bz-prow ${a.status}" style="--c:${d.color}">
+        <span class="d-icon" style="background:${d.color}">${icon(d.icon)}</span>
+        <div class="who2"><b>${esc(d.short)}</b><span>${esc(a.text)}</span></div>
+        <span class="st">${a.status === 'done' ? `${icon('check')} ${a.tools ? `${a.tools} tool${a.tools > 1 ? 's' : ''}` : 'Done'}` : a.status === 'working' ? '<i class="bar"></i>' : 'Queued'}</span></div>`;
+    }).join('');
+    return `<div class="bz-prog" role="status" aria-live="polite">
+      <div class="bz-phead"><span class="bz-hexspin" aria-hidden="true"></span>
+        <div><b>${esc(prog.head)}</b>${prog.agents.length && prog.stage === 1 ? `<span class="sub">${done} of ${prog.agents.length} departments done</span>` : ''}</div>
+        <span class="time" id="progTime">${fmtSecs(Date.now() - prog.start)}</span></div>
+      <ol class="bz-steps">${steps}</ol>
+      ${rows ? `<div class="bz-prows">${rows}</div>` : ''}
+      ${prog.note ? `<div class="bz-pnote">${esc(prog.note)}</div>` : ''}
+      <p class="bz-phint" id="progHint" hidden></p>
+      ${prog.stage >= 1 ? '<div class="bz-skel" aria-hidden="true"><i></i><i></i></div>' : ''}</div>`;
+  }
+  function progEvent(ev) {
+    if (!prog) return;
+    const d = ev.data || {};
+    const ea = ev.agent === 'Executive Assistant';
+    if (ev.kind === 'run_started') { prog.mode = d.mode || prog.mode; prog.head = 'Understanding your request'; }
+    if (ev.kind === 'thinking' && ea) {
+      if ((d.round || 1) === 1) { prog.stage = 0; prog.head = 'Muse Spark is planning which departments to involve'; }
+      else { prog.stage = 2; prog.head = 'Writing your answer from the findings'; }
+    }
+    if (ev.kind === 'plan' && d.plan) {
+      prog.stage = 1;
+      d.plan.forEach(p => { const a = agentRow(p.agent); if (a.status === 'done') a.status = 'queued'; });
+      const n = prog.agents.length;
+      prog.head = `Gathering data from ${n} department${n > 1 ? 's' : ''}${n > 1 ? ' at once' : ''}`;
+    }
+    if (DEPTS[ev.agent]) {
+      const a = agentRow(ev.agent);
+      if (ev.kind === 'agent_started') { a.status = 'working'; a.text = 'Starting'; }
+      if (ev.kind === 'thinking') { a.status = 'working'; a.text = ev.title; }
+      if (ev.kind === 'tool_call') { a.status = 'working'; a.text = ev.title; a.tools++; }
+      if (ev.kind === 'agent_finished') { a.status = 'done'; a.text = 'Finished'; }
+      if (ev.kind === 'tool_error' || ev.kind === 'agent_error') a.text = ev.title;
+      if (prog.stage === 1 && prog.agents.every(x => x.status === 'done')) { prog.stage = 2; prog.head = 'Writing your answer from the findings'; }
+    }
+    if (ev.kind === 'error' && ea) prog.note = ev.title;
+    if (ev.kind === 'verification') { prog.stage = 3; prog.head = 'Checking every figure against your records'; }
+    const box = msgs.querySelector('#thinking');
+    if (box) { box.innerHTML = progressHTML(); hint(); }
+  }
+
   // ---------------- operations floor
   function resetFloor() {
     el.querySelectorAll('.desk').forEach(d => { d.className = 'desk idle'; d.querySelector('.d-status').textContent = 'Idle'; });
@@ -105,11 +184,13 @@ export async function render(el, params) {
     const desk = deskFor(ev.agent);
     if (ev.kind === 'plan') el.querySelector('#execStatus').textContent = ev.title;
     if (ev.kind === 'model_call' && ev.agent === 'Executive Assistant') el.querySelector('#execStatus').textContent = ev.title;
+    if (ev.kind === 'thinking' && ev.agent === 'Executive Assistant') el.querySelector('#execStatus').textContent = ev.title + '…';
     if (desk) {
       const st = desk.querySelector('.d-status');
       if (ev.kind === 'agent_started') { desk.className = 'desk working'; st.textContent = d.task ? `Task: ${d.task}`.slice(0, 120) : 'Working'; }
       if (ev.kind === 'tool_call') { desk.className = 'desk working'; st.textContent = ev.title + '…'; }
       if (ev.kind === 'model_call') st.textContent = 'Reasoning with Muse Spark…';
+      if (ev.kind === 'thinking') { desk.className = 'desk working'; st.textContent = ev.title + '…'; }
       if (ev.kind === 'agent_finished') { desk.className = 'desk done'; st.textContent = `Done${(d.tools_used || []).length ? ` · ${d.tools_used.length} tool call${d.tools_used.length > 1 ? 's' : ''}` : ''}`; }
       if (ev.kind === 'tool_error' || ev.kind === 'agent_error') st.textContent = ev.title;
     }
@@ -140,16 +221,18 @@ export async function render(el, params) {
       const r = await api.post('/api/assistant/chat', { message: text, session_id: sessionId });
       sessionId = r.session_id;
       resetFloor();
+      progReset();
       await renderSession();
       let after = r.events_after;
       const startedAt = Date.now();
       const tick = async () => {
         try {
           const e = await api.get(`/api/assistant/sessions/${sessionId}/events?after=${after}&run_id=${r.run_id}`);
-          e.events.forEach(ev => { applyEvent(ev); after = ev.id; });
+          e.events.forEach(ev => { applyEvent(ev); progEvent(ev); after = ev.id; });
           const finished = e.events.some(ev => ev.kind === 'final') || (e.run && e.run.status !== 'running') || (!e.run && !e.events.length && Date.now() - startedAt > 15000);
           if (finished) {
             stop();
+            clearInterval(progTimer); prog = null;
             running = false;
             el.querySelector('#sendBtn').disabled = false;
             await loadApprovals();

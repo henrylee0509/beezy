@@ -4,7 +4,7 @@ import { can, confirmBox, errToast, esc, field, fmt, icon, modal, on, skeleton, 
 
 export async function render(el, params) {
   let tab = params.get('tab') || (can('salary.read') ? 'payroll' : 'employees');
-  el.innerHTML = `<div class="page-head"><div><h1>Employees &amp; payroll</h1><div class="lead">Pay is calculated by deterministic rules in the backend, never by the AI. Payroll needs owner approval, and payments here are recorded, not sent to a bank.</div></div>
+  el.innerHTML = `<div class="page-head"><div><h1>Staff &amp; pay</h1><div class="lead">Pay is calculated by deterministic rules in the backend, never by the AI. Payroll needs owner approval, and payments here are recorded, not sent to a bank.</div></div>
     <div class="actions">${can('salary.read') ? `<a class="btn" href="#/assistant?q=${encodeURIComponent('Check payroll for the next pay date: how much do I need, is any information missing, and can I afford it?')}">${icon('sparkle')} Ask about payroll</a>` : ''}
     ${can('employees.write') ? `<button class="btn" id="addEmp">${icon('plus')} Add employee</button>` : ''}</div></div>
     <div class="tabs">${[['payroll', 'Payroll', 'salary.read'], ['employees', 'Employees', 'employees.read'], ['rules', 'Payroll rules', 'salary.read']].filter(t => can(t[2]))

@@ -14,7 +14,7 @@ const trigLabel = (r) => {
 };
 
 export async function render(el) {
-  el.innerHTML = `<div class="page-head"><div><h1>Automations</h1><div class="lead">Rules that watch your business and prepare work. Anything that commits money still goes to the approval queue unless you switch on auto-approval with a spending limit in Settings.</div></div>
+  el.innerHTML = `<div class="page-head"><div><h1>Automatic tasks</h1><div class="lead">Rules that watch your business and prepare work. Anything that commits money still goes to the approval queue unless you switch on auto-approval with a spending limit in Settings.</div></div>
     <div class="actions">${can('automations.write') ? `<button class="btn" id="runAll">${icon('automations')} Run all now</button><button class="btn primary" id="newRule">${icon('plus')} New rule</button>` : ''}</div></div>
     <div id="policy"></div><div id="rules" class="grid g2">${skeleton(5)}</div>
     <section class="panel" style="margin-top:16px"><div class="panel-head"><h2>Run history</h2></div><div class="panel-body" id="hist"></div></section>`;

@@ -4,7 +4,7 @@ import { barChart } from '../charts.js';
 import { can, confirmBox, empty, errToast, esc, field, fmt, icon, meter, modal, on, skeleton, statusBadge, toast } from '../ui.js';
 
 export async function render(el) {
-  el.innerHTML = `<div class="page-head"><div><h1>Inventory</h1><div class="lead" id="invLead">Stock levels, forecasts and restocking.</div></div>
+  el.innerHTML = `<div class="page-head"><div><h1>Stock</h1><div class="lead" id="invLead">Stock levels, forecasts and restocking.</div></div>
     <div class="actions">
       <a class="btn" href="#/assistant?q=${encodeURIComponent('Which products are running low, when will they run out, and what should I order?')}">${icon('sparkle')} Ask about stock</a>
       ${can('procurement.write') ? `<button class="btn primary" id="restockBtn">${icon('procurement')} Plan restock</button>` : ''}

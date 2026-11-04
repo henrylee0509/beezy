@@ -199,7 +199,8 @@ def run_agent(run: Run, key: str, task: str) -> dict:
     messages = [{"role": "system", "content": _agent_prompt(key, run.ctx)}, {"role": "user", "content": task}]
     schemas = [t.schema() for t in tools]
     used = []
-    for _ in range(MAX_AGENT_ROUNDS):
+    for rnd in range(MAX_AGENT_ROUNDS):
+        run.emit(name, "thinking", "Thinking with Muse Spark" if rnd == 0 else "Reading tool results with Muse Spark", {"round": rnd + 1})
         resp = meta_client.chat(messages, schemas, biz=run.ctx.business_id, run_id=run.run_id, agent=name)
         run.model_calls += 1
         run.tokens += (resp["usage"] or {}).get("total_tokens", 0) or 0
@@ -228,6 +229,8 @@ def run_real(run: Run, user_text: str, history: list[dict]) -> str:
     messages.append({"role": "user", "content": user_text})
     schemas = [_consult_schema(k) for k in available]
     for rnd in range(MAX_ORCH_ROUNDS):
+        run.emit("Executive Assistant", "thinking",
+                 "Planning which departments to involve" if rnd == 0 else "Writing your answer from the findings", {"round": rnd + 1})
         resp = meta_client.chat(messages, schemas, biz=run.ctx.business_id, run_id=run.run_id, agent="Executive Assistant")
         run.model_calls += 1
         run.tokens += (resp["usage"] or {}).get("total_tokens", 0) or 0
