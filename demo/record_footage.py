@@ -196,7 +196,7 @@ async def seg_overview(r: Recorder, url):
     await p.mouse.wheel(0, 560)
     await asyncio.sleep(1.8)
     await r.cap(None)
-    await r.clip_end("overview", max_seconds=13.5)
+    await r.clip_end("overview", max_seconds=12)
 
 
 async def seg_health(r: Recorder, url):
@@ -234,7 +234,7 @@ async def seg_health(r: Recorder, url):
     await r.move_to(tl, 700, 0.3, 0.5)
     await asyncio.sleep(1.6)
     await r.cap(None)
-    await r.clip_end("health", max_seconds=20)
+    await r.clip_end("health", max_seconds=19)
 
 
 async def seg_restock(r: Recorder, url):
@@ -282,7 +282,7 @@ async def seg_supplier(r: Recorder, url):
     await r.cam(None)
     await p.keyboard.press("Escape")
     await r.cap(None)
-    await r.clip_end("supplier", max_seconds=10)
+    await r.clip_end("supplier", max_seconds=9)
 
 
 async def seg_contract(r: Recorder, url):

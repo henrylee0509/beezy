@@ -163,6 +163,29 @@
   #close .url { margin-top: 60px; display: inline-flex; align-items: center; gap: 16px; font-size: 36px; font-weight: 650; color: var(--ink);
     padding: 18px 30px; }
   #close .by { margin-top: 26px; font-size: 25px; color: var(--ink-3); }
+  /* ---------- muse (how the Meta models are used) ---------- */
+  #muse h2 { font-size: 58px; }
+  .mflow { position: absolute; left: 140px; top: 300px; width: 1090px; display: grid; gap: 22px; }
+  .mstep { display: grid; grid-template-columns: 300px 1fr; gap: 26px; align-items: start; }
+  .mstep .lab { padding-top: 10px; }
+  .mstep .n { width: 46px; height: 46px; clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%); background: var(--honey);
+    display: grid; place-items: center; font-weight: 800; font-size: 22px; color: var(--ink); }
+  .mstep .t { font-size: 29px; font-weight: 750; letter-spacing: -0.02em; margin-top: 14px; }
+  .mstep .s { font-size: 20px; color: var(--ink-3); margin-top: 6px; line-height: 1.4; }
+  .code { background: var(--ink); color: #e9e4d6; border-radius: 18px; padding: 22px 26px; font-family: "DejaVu Sans Mono", monospace;
+    font-size: 19.5px; line-height: 1.55; white-space: pre; box-shadow: var(--shadow); }
+  .code .k { color: var(--honey); } .code .v { color: #bfe3a8; } .code .c { color: #8f887a; } .code .u { color: #fff; font-weight: 700; }
+  .code .ln { display: block; opacity: 0; animation: fade .35s ease both; }
+  .mside { position: absolute; left: 1300px; top: 300px; width: 480px; display: grid; gap: 20px; }
+  .mcard { padding: 24px 28px 26px; display: grid; grid-template-columns: 52px 1fr; column-gap: 18px; align-items: center; }
+  .mcard .e, .mcard .s { grid-column: 1 / -1; }
+  .mcard .ic { width: 52px; height: 52px; border-radius: 14px; display: grid; place-items: center; background: var(--ink); color: var(--honey); }
+  .mcard .ic svg { width: 28px; height: 28px; }
+  .mcard .t { font-size: 30px; font-weight: 800; letter-spacing: -0.03em; }
+  .mcard .e { font-family: "DejaVu Sans Mono", monospace; font-size: 17px; color: var(--honey-ink); margin-top: 16px; }
+  .mcard .s { font-size: 20px; color: var(--ink-2); margin-top: 10px; line-height: 1.4; }
+  .mcard.hot { background: var(--honey); border-color: transparent; }
+  .mcard.hot .e { color: #4a3800; } .mcard.hot .s { color: #3a2c00; }
 </style>
 </head>
 <body>
@@ -256,6 +279,31 @@
     <div class="panel box a" style="animation-delay:8.4s"><div class="t"><span class="d-icon" style="background:var(--teal)" data-icon="check"></span>Approval queue</div><div class="s">Agents draft, people approve. Spending limits are enforced by the server.</div></div>
     <div class="panel box a" style="animation-delay:9.6s"><div class="t"><span class="d-icon" style="background:var(--green)" data-icon="shield"></span>Verifier</div><div class="s">Every figure in an answer is traced back to a tool result.</div></div>
     <div class="panel box a" style="animation-delay:10.8s"><div class="t"><span class="d-icon" style="background:var(--amber)" data-icon="automations"></span>Automation engine</div><div class="s">Rules run on a schedule and on stock events, like the 20% restock rule.</div></div>
+  </div>
+</section>
+
+<!-- 4b. MUSE: how the Meta models are used -->
+<section class="slide" id="muse">
+  <div class="brandbar f"><span class="mark"><svg viewBox="0 0 32 32"><path d="M16 6.5 L24.2 11.25 L24.2 20.75 L16 25.5 L7.8 20.75 L7.8 11.25 Z" fill="#16140f"/></svg></span>Beezy</div>
+  <h2 class="a" style="animation-delay:.1s">That health check, as Muse Spark sees it.</h2>
+  <div class="mflow">
+    <div class="mstep a" style="animation-delay:.7s">
+      <div class="lab"><div class="n">1</div><div class="t">Plan</div><div class="s">The Executive Assistant gets the question and six agents it can call.</div></div>
+      <div class="code"><span class="ln" style="animation-delay:.9s"><span class="u">POST</span> api.meta.ai/v1/chat/completions</span><span class="ln" style="animation-delay:1.1s">{ <span class="k">"model"</span>: <span class="v">"muse-spark-1.3"</span>,</span><span class="ln" style="animation-delay:1.3s">  <span class="k">"parallel_tool_calls"</span>: <span class="v">true</span>,</span><span class="ln" style="animation-delay:1.5s">  <span class="k">"tools"</span>: [consult_inventory, consult_finance,</span><span class="ln" style="animation-delay:1.6s">            consult_bi, <span class="c">… 3 more agents</span>] }</span></div>
+    </div>
+    <div class="mstep a" style="animation-delay:3.0s">
+      <div class="lab"><div class="n">2</div><div class="t">Delegate in parallel</div><div class="s">Each agent then runs its own Muse Spark loop over its own typed tools.</div></div>
+      <div class="code"><span class="ln" style="animation-delay:3.2s"><span class="k">"tool_calls"</span>: [</span><span class="ln" style="animation-delay:3.5s">  { <span class="k">"name"</span>: <span class="v">"consult_inventory"</span> },  <span class="c">→ get_low_stock_products</span></span><span class="ln" style="animation-delay:3.7s">  { <span class="k">"name"</span>: <span class="v">"consult_finance"</span> },    <span class="c">→ forecast_cash_balance</span></span><span class="ln" style="animation-delay:3.9s">  { <span class="k">"name"</span>: <span class="v">"consult_bi"</span> } ]       <span class="c">→ evaluate_affordability</span></span></div>
+    </div>
+    <div class="mstep a" style="animation-delay:5.6s">
+      <div class="lab"><div class="n">3</div><div class="t">Answer from data</div><div class="s">Tool results go back to the model. The verifier checks every figure it writes.</div></div>
+      <div class="code"><span class="ln" style="animation-delay:5.8s">{ <span class="k">"role"</span>: <span class="v">"tool"</span>,</span><span class="ln" style="animation-delay:6.0s">  <span class="k">"tool_call_id"</span>: <span class="v">"call_0_get_financial_summary"</span>,</span><span class="ln" style="animation-delay:6.2s">  <span class="k">"content"</span>: <span class="v">"{\"revenue\": 46552.91, …}"</span> }</span></div>
+    </div>
+  </div>
+  <div class="mside">
+    <div class="panel mcard hot a" style="animation-delay:7.6s"><div class="ic" data-icon="sparkle"></div><div class="t">Muse Spark 1.3</div><div class="e">/v1/chat/completions</div><div class="s">Plans every request, delegates to six agents and chooses from about 30 typed tools.</div></div>
+    <div class="panel mcard a" style="animation-delay:8.6s"><div class="ic" data-icon="mic"></div><div class="t">Muse Voice Transcribe</div><div class="e">/v1/asr/transcribe</div><div class="s">Hold the mic and speak a request. The browser sends 16 kHz audio; the agents get text.</div></div>
+    <div class="panel mcard a" style="animation-delay:9.6s"><div class="ic" data-icon="shield"></div><div class="t">Every call logged</div><div class="s">Model, agent, latency and tokens, with retries and a labelled fallback if the API is down.</div></div>
   </div>
 </section>
 

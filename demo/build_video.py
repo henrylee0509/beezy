@@ -9,8 +9,8 @@ import subprocess
 import sys
 from pathlib import Path
 
-ORDER = ["slide_title", "slide_problem", "slide_solution", "slide_arch", "slide_bumper",
-         "clip_overview", "clip_health", "clip_restock", "clip_supplier", "clip_contract", "clip_payroll",
+ORDER = ["slide_title", "slide_problem", "slide_solution", "slide_arch",
+         "clip_overview", "clip_health", "slide_muse", "clip_restock", "clip_supplier", "clip_contract", "clip_payroll",
          "clip_automation", "clip_rules", "slide_trust", "slide_next", "slide_close"]
 
 

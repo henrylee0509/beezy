@@ -17,14 +17,15 @@ W, H = 1920, 1080
 
 # slide id -> seconds on screen (fades are added inside each file)
 SLIDES = {
-    "title": 9.0,
-    "problem": 13.0,
-    "solution": 12.0,
-    "arch": 18.0,
+    "title": 8.5,
+    "problem": 12.0,
+    "solution": 11.0,
+    "arch": 15.5,
+    "muse": 13.5,
     "bumper": 3.0,
-    "trust": 10.5,
-    "next": 8.0,
-    "close": 7.0,
+    "trust": 9.5,
+    "next": 6.5,
+    "close": 6.5,
 }
 
 FFMPEG_OUT = ["-c:v", "libx264", "-preset", "medium", "-crf", "18", "-pix_fmt", "yuv420p", "-r", str(FPS),
