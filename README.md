@@ -57,7 +57,7 @@ Without `MODEL_API_KEY` the app runs in **mock mode**: a deterministic planner c
 
 ```bash
 pip install -r requirements-dev.txt
-python -m pytest backend/tests -q      # 53 tests
+python -m pytest backend/tests -q      # 56 tests
 ```
 
 They cover thresholds, forecasting, supplier choice, MOQ rounding, spending limits, approvals, payroll maths and workflow, cash forecasting, contract extraction and reminders, automations, tenant isolation, RBAC, validation, report exports, and the **real Muse Spark code path** end-to-end against a protocol-level fake of the Meta Model API (`backend/tests/fake_meta.py`): parallel tool calls, `tool_call_id` round-trips, the verifier catching an invented number, transcription, and graceful fallback when the API is down.
