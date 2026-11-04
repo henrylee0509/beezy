@@ -10,15 +10,15 @@ Timed to `Beezy_demo.mp4`. Each block fits its scene at a relaxed pace (about 2.
 Hi, I'm Henry. This is Beezy: an AI operations team for small businesses, built on Meta's Muse Spark.
 
 **0:08 · Six systems**
-A cafe owner like Mia runs her business across six tools that never talk to each other: a stock spreadsheet, supplier emails, a payroll calculator, a contract folder. So she finds out about problems after they've already cost her money.
+Small business owners like Mia run everything across tools that never talk to each other: a stock spreadsheet, supplier emails, a payroll calculator, a contract folder. Problems show up after they've cost money.
 
 **0:20 · The idea**
-Beezy gives her six AI departments. They detect problems, prepare the work by comparing suppliers and drafting orders and payroll, and then they wait. Nothing that spends money happens without her approval.
+Beezy gives her six AI departments. They spot problems, prepare the work, and then they wait. Nothing that spends money happens without her approval.
 
 ## Architecture
 
 **0:31 · Architecture**
-An Executive Assistant on Muse Spark plans each request and consults specialist agents in parallel. Their tools run deterministic code, so the model decides but never does the maths. Drafts go to an approval queue, and a verifier checks every figure.
+An Executive Assistant on Muse Spark plans each request and consults specialist agents in parallel. Their tools run deterministic code, so the model decides but never does the maths. And a verifier checks every figure.
 
 ## Live demo
 
@@ -29,7 +29,7 @@ Let's run a cafe. Mia signs in to a morning briefing from the Business Intellige
 She asks for a health check. The Executive Assistant decides which departments it needs, and you can watch each one work through real tool calls. Instead of a wall of text, she gets a short summary and visual cards: stock levels as honeycomb gauges, her cash runway, payroll and contract deadlines, all built from verified data.
 
 **1:18 · Under the hood**
-Here's what that request looks like to Muse Spark. The Executive Assistant sends the question with six agents as tools. Muse Spark calls three of them in parallel, each runs its own tool loop, and the real data comes back by tool call ID. Voice goes through Muse Voice Transcribe.
+Here's that request as Muse Spark sees it. Six agents are offered as tools, Muse Spark calls them in parallel, and the real data flows back. Voice commands use Muse Voice Transcribe.
 
 **1:31 · Restock**
 Now one tap asks it to act: restock everything that's running low. The Procurement agent drafts three purchase orders, but only drafts them. One click on Approve all, and they're sent to suppliers.
@@ -38,7 +38,7 @@ Now one tap asks it to act: restock everything that's running low. The Procureme
 Why Highland Roasters and not the cheaper supplier? The cheaper one can't deliver before the beans run out in four days. That comparison is plain, testable code.
 
 **1:55 · Contracts**
-Every contract deadline sits on one timeline, with the last day to give notice in red. She drops in a new pastry supplier contract. The Contract agent pulls out the term, the payment terms and the forty-five-day notice clause, with page references, and schedules reminders.
+Every contract deadline sits on one timeline, with notice deadlines in red. She drops in a new pastry contract, and the Contract agent pulls out the terms and the notice clause, with page references.
 
 **2:10 · Payroll**
 Payroll is calculated in code, never by the model, and it flags problems before payday: one missing timesheet, one missing bank account.
@@ -55,7 +55,7 @@ Each rule shows exactly how it works, and every one ends with the owner approvin
 That's what makes it trustworthy: verified figures, human approval for anything involving money, role-aware agents, and fifty-three automated tests, including the Muse Spark tool-calling path.
 
 **2:43 · What's next**
-Next come live point-of-sale and bank feeds, orders that go straight to suppliers, and professionally verified payroll packs.
+Next: live sales and bank feeds, orders sent straight to suppliers, and verified payroll packs.
 
 **2:49 · Close**
 Detect. Prepare. You approve. That's Beezy. Thanks for watching.
@@ -66,7 +66,7 @@ Use these lines instead only if your footage shows "Mock AI mode":
 
 - **0:47 · Overview:** "Mia signs in to a morning briefing that pulls the key numbers from every department, each one checked against her records."
 - **0:59 · Health check:** "She asks for a health check. The Executive Assistant decides which departments it needs, and you can watch each one work through real tool calls on her data. She gets a short summary and visual cards built from her records."
-- **1:18 · Under the hood:** "Here's what that request looks like when Beezy runs on Muse Spark. The Executive Assistant sends the question with six agents as tools, Muse Spark calls them in parallel, and the real data comes back by tool call ID. Voice goes through Muse Voice Transcribe."
+- **1:18 · Under the hood:** "Here's that request as Muse Spark sees it. Six agents are offered as tools, Muse Spark calls them in parallel, and the real data flows back. Voice commands use Muse Voice Transcribe."
 
 ## Recording tips
 
