@@ -1,7 +1,7 @@
 import { api } from '../api.js';
 import { refreshCounts } from '../app.js';
 import { bindApprovals, DEPTS } from '../components.js';
-import { aiSource, errToast, esc, fmt, icon, md, on, state, statusBadge, toast } from '../ui.js';
+import { aiSource, can, errToast, esc, fmt, icon, md, on, state, statusBadge, toast } from '../ui.js';
 import { WavRecorder } from '../voice.js';
 import { ordersCard, renderCards } from '../cards.js';
 import { bindPicker, pickerHTML } from '../taskpicker.js';
@@ -54,9 +54,15 @@ export async function render(el, params) {
   const timeline = el.querySelector('#timeline');
   bindApprovals(msgs, async () => { await loadApprovals(); renderSession(); });
 
+  // Live state the answer cards read, so their buttons always reflect what is pending right now.
+  let contractsById = {};
   async function loadApprovals() {
     try { const r = await api.get('/api/approvals?status=ALL'); approvalsById = Object.fromEntries(r.approvals.map(a => [a.id, a])); } catch (e) { approvalsById = {}; }
+    if (can('contracts.read')) {
+      try { const c = await api.get('/api/contracts'); contractsById = Object.fromEntries(c.contracts.map(x => [x.id, x])); } catch (e) { contractsById = {}; }
+    }
   }
+  const live = () => ({ approvals: approvalsById, contracts: contractsById, canRestock: can('procurement.write'), canDecideContracts: can('contracts.write') });
 
   async function loadSessions() {
     const r = await api.get('/api/assistant/sessions');
@@ -87,7 +93,7 @@ export async function render(el, params) {
     const meta = m.meta || {};
     const mode = meta.mode === 'real' ? `<span class="badge teal">Muse Spark</span>` : meta.mode === 'fallback' ? `<span class="badge amber">Fallback: Muse Spark unavailable</span>` : meta.mode ? `<span class="badge amber">Mock mode</span>` : '';
     const agents = (meta.agents || []).map(a => `<span class="badge outline" style="border-color:${DEPTS[a]?.color || 'var(--line)'};color:${DEPTS[a]?.color || 'inherit'}">${esc(DEPTS[a]?.short || a)}</span>`).join(' ');
-    const cards = renderCards(meta.cards);
+    const cards = renderCards(meta.cards, live());
     const orders = ordersCard(meta.actions || [], approvalsById);
     return `<div class="msg assistant"><div class="who"><b style="color:var(--ink)">Beezy</b> ${mode} ${agents}
         ${meta.duration_ms ? `<span>${(meta.duration_ms / 1000).toFixed(1)}s${meta.model_calls ? ` · ${meta.model_calls} model calls` : ''}</span>` : ''}</div>
@@ -258,6 +264,28 @@ export async function render(el, params) {
   prompt.addEventListener('input', () => { prompt.style.height = 'auto'; prompt.style.height = Math.min(160, prompt.scrollHeight) + 'px'; });
   on(msgs, 'click', '[data-suggest]', (e, b) => send(b.dataset.suggest));
   on(el, 'click', '[data-quick]', (e, b) => send(b.dataset.quick));
+  on(msgs, 'click', '[data-restock]', async (e, b) => {
+    b.disabled = true;
+    try {
+      const r = await api.post('/api/procurement/draft-restock', { product_ids: b.dataset.restock.split(',').map(Number) });
+      const n = (r.created || []).length;
+      toast(n ? `${n} order${n > 1 ? 's' : ''} drafted and added to To approve` : 'Nothing needed restocking', 'ok');
+      refreshCounts();
+      await loadApprovals();
+      renderSession();
+    } catch (err) { errToast(err); b.disabled = false; }
+  });
+  on(msgs, 'click', '[data-contract-action]', async (e, b) => {
+    const [id, action, months] = b.dataset.contractAction.split('|');
+    b.disabled = true;
+    try {
+      await api.post(`/api/contracts/${id}/actions`, { action, ...(months ? { months: Number(months) } : {}) });
+      toast('Added to To approve. Approve it here or on the To approve page.', 'ok');
+      refreshCounts();
+      await loadApprovals();
+      renderSession();
+    } catch (err) { errToast(err); b.disabled = false; }
+  });
   on(msgs, 'click', '[data-approve-all]', async (e, b) => {
     b.disabled = true;
     const ids = b.dataset.approveAll.split(',');

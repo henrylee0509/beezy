@@ -434,7 +434,7 @@ CREATE TABLE IF NOT EXISTS recommendations (
 CREATE TABLE IF NOT EXISTS approval_requests (
   id INTEGER PRIMARY KEY,
   business_id INTEGER NOT NULL REFERENCES businesses(id) ON DELETE CASCADE,
-  kind TEXT NOT NULL CHECK (kind IN ('PURCHASE_ORDER','PAYROLL','PAYROLL_PAYMENT','INVOICE_REMINDER')),
+  kind TEXT NOT NULL CHECK (kind IN ('PURCHASE_ORDER','PAYROLL','PAYROLL_PAYMENT','INVOICE_REMINDER','CONTRACT_ACTION')),
   ref_id INTEGER NOT NULL,
   title TEXT NOT NULL,
   summary TEXT,
@@ -483,3 +483,20 @@ CREATE TABLE IF NOT EXISTS briefings (
   verification TEXT NOT NULL DEFAULT '{}',
   generated_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
+
+-- A decision about a contract (extend it, or let it end at expiry) waiting for approval.
+CREATE TABLE IF NOT EXISTS contract_actions (
+  id INTEGER PRIMARY KEY,
+  business_id INTEGER NOT NULL REFERENCES businesses(id) ON DELETE CASCADE,
+  contract_id INTEGER NOT NULL REFERENCES contracts(id) ON DELETE CASCADE,
+  action TEXT NOT NULL,
+  months INTEGER,
+  new_end_date TEXT,
+  note TEXT,
+  status TEXT NOT NULL DEFAULT 'PENDING',
+  approval_id INTEGER,
+  requested_by TEXT NOT NULL,
+  decided_by TEXT,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+CREATE INDEX IF NOT EXISTS idx_contract_actions ON contract_actions(business_id, contract_id, status);

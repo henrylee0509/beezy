@@ -27,16 +27,35 @@ function pulse(c) {
       <div class="s">${t.delta !== undefined && t.delta !== null ? `<span class="${t.delta >= 0 ? 'up' : 'down'}">${fmt.pct(t.delta, true)}</span> vs prior period` : esc(t.sub || '')}</div></div>`).join('')}</div></section>`;
 }
 
-function stock(c) {
+function stock(c, live = {}) {
   return `<section class="bz-card">${head('inventory', c.title, c.subtitle || '', c.total ? `<div class="bz-total"><span>New orders</span><b class="num">${fmt.money(c.total)}</b></div>` : '')}
     <div class="bz-stock">${c.rows.map(r => `<div class="bz-srow">
       ${hexGauge(r.stock_pct, 46, r.level)}
       <div class="bz-sp"><b>${esc(r.product)}</b><span>${r.current !== undefined ? `${fmt.num(r.current, 1)} of ${fmt.num(r.max)} ${esc(r.unit || '')}` : ''}</span></div>
       <div class="bz-cover ${r.cover !== null && r.cover !== undefined && r.cover <= 5 ? 'hot' : ''}"><b class="num">${r.cover ?? '—'}</b><span>days left</span></div>
-      <div class="bz-sup">${r.on_order ? `<span class="badge green">On order · ${esc(r.on_order)}</span>` : r.supplier ? `<span class="muted small">Order</span>
-        <b class="num">${fmt.num(r.quantity)} ${esc(r.unit || '')}</b><span class="muted small">from ${esc(r.supplier)}</span>${r.drafted ? `<span class="badge teal" style="margin-top:3px;align-self:flex-start">Drafted · ${esc(r.drafted)}</span>` : ''}` : '<span class="muted small">No supplier</span>'}</div>
+      <div class="bz-sup">${r.on_order ? `<span class="badge green">On order · ${esc(r.on_order)}</span>` : r.supplier ? (r.quantity ? `<span class="muted small">Order</span>
+        <b class="num">${fmt.num(r.quantity)} ${esc(r.unit || '')}</b><span class="muted small">from ${esc(r.supplier)}</span>` : `<span class="muted small">Supplier</span><b>${esc(r.supplier)}</b>`) + `${r.drafted ? `<span class="badge teal" style="margin-top:3px;align-self:flex-start">Drafted · ${esc(r.drafted)}</span>` : ''}` : '<span class="muted small">No supplier</span>'}</div>
       <div class="bz-cost num">${r.cost && !r.on_order ? fmt.money(r.cost) : ''}</div>
-      ${r.why && !r.on_order ? `<div class="bz-why">${icon('sparkle')}${esc(r.why)}</div>` : ''}</div>`).join('')}</div></section>`;
+      ${r.why && !r.on_order ? `<div class="bz-why">${icon('sparkle')}${esc(r.why)}</div>` : ''}</div>`).join('')}</div>
+    ${restockCta(c, live)}</section>`;
+}
+
+// Offer to draft the orders when the answer only looked at stock; show what is already waiting otherwise.
+function restockCta(c, live) {
+  const todo = c.rows.filter(r => r.product_id && r.supplier && !r.on_order && !r.drafted);
+  const waiting = Object.values(live.approvals || {}).filter(a => a.kind === 'PURCHASE_ORDER' && a.status === 'PENDING');
+  if (waiting.length) {
+    const ids = waiting.filter(a => a.can_decide !== false).map(a => a.id);
+    const sum = waiting.reduce((t, a) => t + (a.amount || 0), 0);
+    return `<div class="bz-cta wait">${icon('approvals')}<div><b>${waiting.length} restock order${waiting.length > 1 ? 's are' : ' is'} waiting for your approval</b>
+      <span>Nothing is sent to suppliers until you approve. You can also review them in To approve.</span></div>
+      ${ids.length ? `<button class="btn primary" data-approve-all="${ids.join(',')}">${icon('check')} Approve all · ${fmt.money(sum, { dp: 0 })}</button>` : `<a class="btn" href="#/approvals">Open To approve</a>`}</div>`;
+  }
+  if (!todo.length || !live.canRestock) return '';
+  const sum = todo.reduce((t, r) => t + (r.cost || 0), 0);
+  return `<div class="bz-cta">${icon('procurement')}<div><b>Restock ${todo.length === 1 ? esc(todo[0].product) : `these ${todo.length} items`} now?</b>
+    <span>Beezy drafts the orders with the suppliers above. They wait in To approve until you say yes.</span></div>
+    <button class="btn primary" data-restock="${todo.map(r => r.product_id).join(',')}">${icon('procurement')} Prepare orders${sum ? ` · ${fmt.money(sum, { dp: 0 })}` : ''}</button></div>`;
 }
 
 function runway(c) {
@@ -76,12 +95,42 @@ export function contractTimeline(items, days = 90) {
       <span class="pin"></span><div class="lbl"><b>${esc(e.c.title.split(' — ')[0])}</b><span>${esc(e.label)} · ${e.d === 0 ? 'today' : `in ${e.d} days`}</span></div></div>`).join('')}</div></div>`;
 }
 
-function contracts(c) {
+function contracts(c, live = {}) {
   const next = c.items.filter(x => x.days_to_notice_deadline !== null && x.days_to_notice_deadline >= 0).sort((a, b) => a.days_to_notice_deadline - b.days_to_notice_deadline)[0];
   return `<section class="bz-card">${head('contracts', c.title, 'Next 90 days', `<a class="small" style="margin-left:auto" href="#/contracts">Open contracts</a>`)}
     ${contractTimeline(c.items)}
     ${next ? `<div class="bz-verdict warn">${icon('bell')}<div><b>Decide on ${esc(next.title)} by ${fmt.date(next.notice_deadline)}</b>
-      <span>It renews automatically after that${next.payment_terms ? `. Payment terms: ${esc(next.payment_terms)}` : ''}.</span></div></div>` : ''}</section>`;
+      <span>It renews automatically after that${next.payment_terms ? `. Payment terms: ${esc(next.payment_terms)}` : ''}.</span></div></div>` : ''}
+    ${contractDecisions(c.items, live)}</section>`;
+}
+
+// Smart options per contract that needs a decision: extend, end at expiry, or renegotiate first.
+export function contractDecisions(items, live = {}) {
+  const rows = items.map(x => {
+    const lc = (live.contracts || {})[x.id] || x;
+    const opts = lc.suggestions || [];
+    if (!opts.length) return '';
+    const pend = opts.find(o => o.pending);
+    const ap = pend && pend.approval_id ? (live.approvals || {})[pend.approval_id] : null;
+    const when = lc.notice_deadline && lc.days_to_notice_deadline >= 0 ? `decide by ${fmt.date(lc.notice_deadline)}` : `ends ${fmt.date(lc.end_date)}`;
+    let body;
+    if (pend) {
+      body = `<div class="bz-dpend">${icon('approvals')}<span><b>${esc(pend.label)}</b> is waiting for approval.</span>
+        ${ap && ap.status === 'PENDING' && ap.can_decide !== false ? `<button class="btn sm" data-reject="${ap.id}">Reject</button><button class="btn sm primary" data-approve="${ap.id}">Approve</button>`
+          : `<a class="btn sm" href="#/approvals">Open To approve</a>`}</div>`;
+    } else if (lc.status === 'ENDING') {
+      body = `<div class="bz-dpend">${icon('check')}<span>Set to end on ${fmt.date(lc.end_date)}. Auto-renewal is off.</span></div>`;
+    } else {
+      body = `<div class="bz-opts">${opts.map(o => o.action === 'RENEGOTIATE'
+        ? `<button type="button" class="bz-opt" data-quick="${esc(`Help me renegotiate ${lc.title} with ${lc.counterparty || 'the counterparty'}: summarise the current terms, what we spend with them, and three points I could push for before ${lc.notice_deadline || lc.end_date}.`)}"><b>${esc(o.label)}</b><small>${esc(o.detail)}</small></button>`
+        : `<button type="button" class="bz-opt${o.recommended ? ' rec' : ''}" ${live.canDecideContracts ? '' : 'disabled title="Only an owner or manager can request this"'} data-contract-action="${lc.id}|${o.action}|${o.months || ''}">
+            ${o.recommended ? '<span class="tag">Suggested</span>' : ''}<b>${esc(o.label)}</b><small>${esc(o.detail)}</small></button>`).join('')}</div>`;
+    }
+    return `<div class="bz-decide"><div class="bz-dt"><b>${esc(lc.title)}</b><span>${esc(lc.counterparty || '')}${lc.counterparty ? ' · ' : ''}${when}${lc.auto_renew ? ' · auto-renews' : ''}</span></div>${body}</div>`;
+  }).filter(Boolean);
+  if (!rows.length) return '';
+  return `<div class="bz-decisions"><div class="bz-dh">What would you like to do?</div>${rows.join('')}
+    <p class="bz-dnote">Extending or ending a contract goes to To approve first. Nothing changes until you approve.</p></div>`;
 }
 
 function priorities(c) {
@@ -99,7 +148,7 @@ export function ordersCard(actions, approvalsById) {
     const done = status === 'APPROVED';
     a.status = status;
     return { a, ap, canDecide, html: `<div class="bz-order ${done ? 'done' : ''}">
-      <span class="bz-hex sm">${icon(a.type === 'PAYROLL' ? 'payroll' : 'procurement')}</span>
+      <span class="bz-hex sm">${icon(a.type === 'PAYROLL' ? 'payroll' : a.type === 'CONTRACT_ACTION' ? 'contracts' : 'procurement')}</span>
       <div class="bz-om"><b>${esc(a.title)}</b><span>${esc(a.detail || '')}</span></div>
       ${a.amount ? `<b class="num bz-oamt">${fmt.money(a.amount)}</b>` : ''}
       <div class="bz-oact">${canDecide ? `<button class="btn sm" data-reject="${a.approval_id}">Reject</button><button class="btn sm primary" data-approve="${a.approval_id}">Approve</button>`
@@ -109,13 +158,14 @@ export function ordersCard(actions, approvalsById) {
   const pending = rows.filter(r => r.canDecide).map(r => r.a.approval_id);
   const total = actions.reduce((s, a) => s + (a.amount || 0), 0);
   const allDone = rows.every(r => r.a.status === 'APPROVED' || (r.ap && r.ap.status === 'APPROVED'));
-  return `<section class="bz-card orders">${head('approvals', allDone ? 'Approved and sent' : 'Ready for your approval',
-      allDone ? 'Orders were submitted to suppliers (simulated in this version).' : 'Prepared by your agents. Nothing is sent or paid until you approve.',
+  const allPO = actions.every(a => a.type === 'PURCHASE_ORDER');
+  return `<section class="bz-card orders">${head('approvals', allDone ? (allPO ? 'Approved and sent' : 'Approved') : 'Ready for your approval',
+      allDone ? (allPO ? 'Orders were submitted to suppliers (simulated in this version).' : 'Done. The changes are saved.') : 'Prepared by your agents. Nothing is sent, paid or changed until you approve.',
       pending.length > 1 ? `<button class="btn primary sm" style="margin-left:auto" data-approve-all="${pending.join(',')}">${icon('check')} Approve all · ${fmt.money(total, { dp: 0 })}</button>` : '')}
     <div class="bz-orders">${rows.map(r => r.html).join('')}</div></section>`;
 }
 
 const RENDER = { pulse, stock, runway, payroll, contracts, priorities };
-export function renderCards(cards) {
-  return (cards || []).filter(c => RENDER[c.type]).map(c => RENDER[c.type](c)).join('');
+export function renderCards(cards, live = {}) {
+  return (cards || []).filter(c => RENDER[c.type]).map(c => RENDER[c.type](c, live)).join('');
 }

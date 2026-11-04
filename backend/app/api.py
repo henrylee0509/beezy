@@ -864,6 +864,19 @@ def con_search(request, ctx: Ctx, _):
         return {"results": contracts.search(conn, ctx.business_id, q)}
 
 
+class ContractActionIn(BaseModel):
+    action: Literal["EXTEND", "END_AT_EXPIRY"]
+    months: Optional[int] = Field(default=None, ge=1, le=60)
+    note: Optional[str] = Field(default=None, max_length=500)
+
+
+@endpoint(perm="contracts.write", body=ContractActionIn)
+def con_action(request, ctx: Ctx, body: ContractActionIn):
+    with db.connect() as conn:
+        return contracts.propose_action(conn, ctx.business_id, int_param(request, "id"), body.action, ctx.actor,
+                                        body.months, body.note or "")
+
+
 @endpoint(perm="contracts.write", body=ContractUpdate)
 def con_update(request, ctx: Ctx, body: ContractUpdate):
     data = body.model_dump(exclude_none=True)
@@ -1243,7 +1256,7 @@ routes = [
     R("/api/payroll/rules/template", rule_template, methods=["POST"]),
     R("/api/contracts", con_list), R("/api/contracts/upload", con_upload, methods=["POST"]), R("/api/contracts/expiring", con_expiring),
     R("/api/contracts/search", con_search), R("/api/contracts/{id:int}", con_get), R("/api/contracts/{id:int}", con_update, methods=["PUT"]),
-    R("/api/contracts/{id:int}/summary", con_summary),
+    R("/api/contracts/{id:int}/summary", con_summary), R("/api/contracts/{id:int}/actions", con_action, methods=["POST"]),
     R("/api/documents/{id:int}", doc_get), R("/api/documents/{id:int}/file", doc_file),
     R("/api/assistant/chat", chat, methods=["POST"]), R("/api/assistant/voice", voice, methods=["POST"]),
     R("/api/assistant/sessions", sessions), R("/api/assistant/sessions/{id:int}", session_get),

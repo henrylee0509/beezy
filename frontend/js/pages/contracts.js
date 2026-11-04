@@ -1,5 +1,7 @@
 import { api } from '../api.js';
-import { contractTimeline } from '../cards.js';
+import { contractDecisions, contractTimeline } from '../cards.js';
+import { bindApprovals } from '../components.js';
+import { refreshCounts } from '../app.js';
 import { can, errToast, esc, field, fmt, icon, modal, on, skeleton, toast } from '../ui.js';
 
 export async function render(el) {
@@ -9,7 +11,8 @@ export async function render(el) {
     ${can('contracts.write') ? `<label class="dropzone" id="drop" for="up"><span class="bz-hex">${icon('upload')}</span>
       <div><b>Drop a contract here, or click to upload</b><br><span>PDF, Word or text. The Contract agent extracts the term, payment terms, renewal and notice clauses with page references, then schedules reminders.</span></div></label>` : ''}
     <section class="panel" style="margin-bottom:16px"><div class="panel-head"><span class="bz-hex sm">${icon('contracts')}</span><h2>Deadlines, next 90 days</h2><span class="sub">Red: last day to give notice · Yellow: auto-renews · Black: expires</span></div>
-      <div class="panel-body" id="timeline">${skeleton(2)}</div></section>
+      <div class="panel-body" id="timeline">${skeleton(2)}</div>
+      <div class="panel-body" id="decide" style="padding-top:0"></div></section>
     <div class="row" style="margin-bottom:12px"><input class="input" id="q" placeholder="Search clauses, parties or terms across all contracts" style="max-width:420px"><span class="small muted" id="disclaimer"></span></div>
     <div id="search"></div>
     <div class="stack"><section class="panel"><div class="panel-body table-wrap" id="tbl">${skeleton(5)}</div></section>
@@ -20,6 +23,10 @@ export async function render(el) {
     try { data = await api.get('/api/contracts'); } catch (e) { return errToast(e); }
     el.querySelector('#disclaimer').textContent = data.disclaimer;
     el.querySelector('#timeline').innerHTML = contractTimeline(data.contracts);
+    let approvalsById = {};
+    try { const r = await api.get('/api/approvals?status=PENDING'); approvalsById = Object.fromEntries(r.approvals.map(a => [a.id, a])); } catch (e) { /* role may not read approvals */ }
+    el.querySelector('#decide').innerHTML = contractDecisions(data.contracts, {
+      approvals: approvalsById, contracts: Object.fromEntries(data.contracts.map(c => [c.id, c])), canDecideContracts: can('contracts.write') });
     el.querySelector('#tbl').innerHTML = `<table class="t"><thead><tr><th>Contract</th><th>Counterparty</th><th>Start</th><th>Expires</th><th>Renewal</th><th class="right">Value</th><th>Source</th></tr></thead><tbody>
       ${data.contracts.map(c => `<tr><td class="strong"><a href="#" data-open="${c.id}">${esc(c.title)}</a><div class="small muted">${esc(c.category)}</div></td><td>${esc(c.counterparty || '—')}</td>
         <td>${fmt.date(c.start_date)}</td><td>${fmt.date(c.end_date)}<div class="small muted">${c.days_to_expiry !== null ? fmt.rel(c.days_to_expiry) : ''}</div></td>
@@ -36,6 +43,18 @@ export async function render(el) {
   };
 
   on(el, 'click', '[data-open]', async (e, a) => { e.preventDefault(); openContract(Number(a.dataset.open)); });
+  on(el, 'click', '[data-contract-action]', async (e, b) => {
+    const [id, action, months] = b.dataset.contractAction.split('|');
+    b.disabled = true;
+    try {
+      await api.post(`/api/contracts/${id}/actions`, { action, ...(months ? { months: Number(months) } : {}) });
+      toast('Added to To approve. Approve it here or on the To approve page.', 'ok');
+      refreshCounts();
+      load();
+    } catch (err) { errToast(err); b.disabled = false; }
+  });
+  on(el, 'click', '#decide [data-quick]', (e, b) => { location.hash = `#/assistant?q=${encodeURIComponent(b.dataset.quick)}`; });
+  bindApprovals(el.querySelector('#decide'), () => load());
   async function openContract(id, highlight = '') {
     const pr = modal({ title: 'Contract', wide: true, noFooter: true, body: `<div id="cd">${skeleton(6)}</div>` });
     try {

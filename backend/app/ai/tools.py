@@ -299,7 +299,7 @@ def t_payroll_runs(conn, ctx, a):
 def _contract_brief(c):
     return {k: c.get(k) for k in ("id", "title", "category", "counterparty", "start_date", "end_date", "days_to_expiry", "value",
                                   "value_period", "payment_terms", "auto_renew", "notice_days", "notice_deadline",
-                                  "days_to_notice_deadline", "renewal_status")}
+                                  "days_to_notice_deadline", "renewal_status", "status", "suggestions")}
 
 
 def t_contracts(conn, ctx, a):
@@ -310,6 +310,12 @@ def t_contracts(conn, ctx, a):
 def t_expiring(conn, ctx, a):
     return {"within_days": int(a.get("days") or 30),
             "contracts": [_contract_brief(c) for c in contracts.expiring(conn, ctx.business_id, int(a.get("days") or 30))]}
+
+
+def t_propose_contract_action(conn, ctx, a):
+    c = contracts.find_contract(conn, ctx.business_id, a["contract"])
+    return contracts.propose_action(conn, ctx.business_id, c["id"], a["action"], _actor(ctx, "Contract Agent"),
+                                    a.get("months"), a.get("note") or "")
 
 
 def t_contract_details(conn, ctx, a):
@@ -452,6 +458,12 @@ TOOLS: list[Tool] = [
     Tool("get_contract_details", "contracts", "Full details, key clauses and page text of one contract (for citing page numbers).",
          _obj({"contract": {"type": "string", "description": "Contract title, counterparty or id"}}, ["contract"]),
          t_contract_details, "contracts.read", label="Reading contract"),
+    Tool("propose_contract_action", "contracts", "ACTION: ask the owner to approve a decision on a contract: EXTEND it (default: by its current term length, or `months`) or END_AT_EXPIRY (turn off auto-renewal and give notice). Goes to the approval queue; nothing changes until a human approves. Only use when the user asks to extend, renew, end or cancel a contract.",
+         _obj({"contract": {"type": "string", "description": "Contract title, counterparty or id"},
+               "action": {"type": "string", "enum": ["EXTEND", "END_AT_EXPIRY"]},
+               "months": {"type": "integer", "minimum": 1, "maximum": 60},
+               "note": {"type": "string"}}, ["contract", "action"]),
+         t_propose_contract_action, "contracts.write", action=True, label="Requesting a contract decision"),
     Tool("search_contracts", "contracts", "Keyword search across contracts and their documents; returns page-level excerpts.",
          _obj({"keyword": {"type": "string"}}, ["keyword"]), t_search_contracts, "contracts.read", label="Searching contracts"),
     # bi

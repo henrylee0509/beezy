@@ -8,7 +8,7 @@ from datetime import timedelta
 
 from .. import db
 from ..web import bad_request, not_found
-from .common import actor_type_for, audit, iso, parse_date, settings, today
+from .common import actor_type_for, audit, iso, now_iso, parse_date, settings, today
 
 CATEGORIES = ["Supplier Agreement", "Rental Agreement", "Employment Contract", "Service Agreement", "NDA",
               "Customer Contract", "Purchase Agreement", "Licence / Permit", "Insurance", "Other"]
@@ -201,7 +201,13 @@ def _decorate(c: dict) -> dict:
 def list_contracts(conn, biz: int) -> list[dict]:
     rows = db.all_(conn, """SELECT c.*, d.filename FROM contracts c LEFT JOIN documents d ON d.id=c.document_id
                             WHERE c.business_id=? ORDER BY CASE WHEN c.end_date IS NULL THEN 1 ELSE 0 END, c.end_date""", (biz,))
-    return [_decorate(r) for r in rows]
+    pend = pending_actions(conn, biz)
+    out = []
+    for r in rows:
+        c = _decorate(r)
+        c["suggestions"] = suggestions(c, pend)
+        out.append(c)
+    return out
 
 
 def get_contract(conn, biz: int, cid: int) -> dict:
@@ -211,7 +217,9 @@ def get_contract(conn, biz: int, cid: int) -> dict:
         raise not_found("Contract")
     c["reminders"] = db.all_(conn, "SELECT * FROM contract_reminders WHERE contract_id=? AND business_id=? ORDER BY remind_on", (cid, biz))
     c["disclaimer"] = DISCLAIMER
-    return _decorate(c)
+    c = _decorate(c)
+    c["suggestions"] = suggestions(c, pending_actions(conn, biz))
+    return c
 
 
 def find_contract(conn, biz: int, ref) -> dict:
@@ -301,3 +309,122 @@ def update_contract(conn, biz: int, cid: int, data: dict, actor: str) -> dict:
     sync_reminders(conn, biz, cid)
     audit(conn, biz, actor_type_for(actor), actor, "contract.update", "contract", cid, {k: v for k, v in data.items() if k != "key_clauses"})
     return get_contract(conn, biz, cid)
+
+
+# ---------------------------------------------------------------- decisions: extend, or end at expiry
+ACTION_LABELS = {"EXTEND": "Extend", "END_AT_EXPIRY": "End at expiry"}
+
+
+def _add_months(d, months: int):
+    y, m = divmod(d.month - 1 + months, 12)
+    y += d.year
+    m += 1
+    import calendar
+    return d.replace(year=y, month=m, day=min(d.day, calendar.monthrange(y, m)[1]))
+
+
+def _nice(d) -> str:
+    d = parse_date(d) if isinstance(d, str) else d
+    return f"{d.day} {d.strftime('%b %Y')}" if d else ""
+
+
+def term_months(c: dict) -> int:
+    """Length of the current term in months (rounded), used as the default extension; 12 if unknown."""
+    s, e = parse_date(c.get("start_date")), parse_date(c.get("end_date"))
+    if not s or not e or e <= s:
+        return 12
+    return max(1, min(60, round((e - s).days / 30.44)))
+
+
+def pending_actions(conn, biz: int) -> dict[int, dict]:
+    rows = db.all_(conn, "SELECT * FROM contract_actions WHERE business_id=? AND status='PENDING'", (biz,))
+    return {r["contract_id"]: r for r in rows}
+
+
+def suggestions(c: dict, pending: dict | None = None) -> list[dict]:
+    """Smart options for a contract that needs a decision soon (ends or has a notice deadline within 120 days)."""
+    end = parse_date(c.get("end_date"))
+    if not end or c.get("status") in ("ENDED",):
+        return []
+    days = c.get("days_to_expiry")
+    nd = c.get("days_to_notice_deadline")
+    if (days is None or days > 120) and (nd is None or nd > 120):
+        return []
+    months = term_months(c)
+    new_end = _nice(_add_months(end, months))
+    ending_note = (f"Notice goes before {_nice(c['notice_deadline'])}, so it does not auto-renew."
+                   if c.get("auto_renew") and c.get("notice_deadline") else f"It finishes on {_nice(c['end_date'])} with no renewal.")
+    opts = [
+        {"action": "EXTEND", "months": months, "label": f"Extend {months} months",
+         "detail": f"Same terms, new end date {new_end}.", "needs_approval": True},
+        {"action": "END_AT_EXPIRY", "label": "End when it expires", "detail": ending_note, "needs_approval": True},
+        {"action": "RENEGOTIATE", "label": "Renegotiate first",
+         "detail": "Beezy prepares talking points from the contract and your spending.", "needs_approval": False},
+    ]
+    # Suggest extending the agreements that keep the business running; no suggestion for people or other decisions.
+    rec = "EXTEND" if c.get("category") in ("Supplier Agreement", "Rental Agreement", "Service Agreement") else None
+    for o in opts:
+        o["recommended"] = o["action"] == rec
+    if pending and c["id"] in pending:
+        p = pending[c["id"]]
+        for o in opts:
+            o["pending"] = o["action"] == p["action"]
+            o["approval_id"] = p.get("approval_id") if o["pending"] else None
+    return opts
+
+
+def propose_action(conn, biz: int, cid: int, action: str, actor: str, months: int | None = None, note: str = "") -> dict:
+    from . import approvals
+    if action not in ACTION_LABELS:
+        raise bad_request("action must be EXTEND or END_AT_EXPIRY")
+    c = get_contract(conn, biz, cid)
+    existing = pending_actions(conn, biz).get(cid)
+    if existing:
+        if existing["action"] == action:
+            return {"action_id": existing["id"], "approval_id": existing["approval_id"], "status": "PENDING", "existing": True}
+        db.update(conn, "contract_actions", existing["id"], {"status": "REPLACED"}, biz)
+        if existing.get("approval_id"):
+            db.update(conn, "approval_requests", existing["approval_id"], {"status": "REJECTED", "reason": "Replaced by a newer decision",
+                                                                           "decided_by": actor, "decided_at": now_iso()}, biz)
+    end = parse_date(c.get("end_date"))
+    if action == "EXTEND":
+        months = int(months or term_months(c))
+        if not 1 <= months <= 60:
+            raise bad_request("months must be between 1 and 60")
+        if not end:
+            raise bad_request("This contract has no end date to extend")
+        new_end = iso(_add_months(end, months))
+        title = f"Extend {c['title']} by {months} months"
+        value = (f" Value {c['value']:,.2f}" + (f" {c['value_period'].lower()}" if c.get("value_period") else "") + ".") if c.get("value") else ""
+        summary = f"{c.get('counterparty') or 'Counterparty'}: new end date {_nice(new_end)} (from {_nice(c['end_date'])}), same terms.{value}"
+    else:
+        new_end = None
+        title = f"Let {c['title']} end on {_nice(c['end_date'])}"
+        summary = (f"Turn off auto-renewal and give notice to {c.get('counterparty') or 'the counterparty'}"
+                   + (f" before {_nice(c['notice_deadline'])}." if c.get("notice_deadline") else "."))
+    if note:
+        summary += f" Note: {note[:300]}"
+    act_id = db.insert(conn, "contract_actions", {"business_id": biz, "contract_id": cid, "action": action, "months": months,
+                                                  "new_end_date": new_end, "note": note[:500] or None, "requested_by": actor})
+    aid = approvals.create(conn, biz, "CONTRACT_ACTION", act_id, title, summary, None, actor, required_role="OWNER")
+    db.update(conn, "contract_actions", act_id, {"approval_id": aid}, biz)
+    audit(conn, biz, actor_type_for(actor), actor, "contract.decision.request", "contract", cid,
+          {"action": action, "months": months, "approval_id": aid})
+    return {"action_id": act_id, "approval_id": aid, "status": "PENDING", "title": title, "summary": summary}
+
+
+def apply_action(conn, biz: int, act_id: int, actor: str, approve: bool) -> dict:
+    act = db.get_owned(conn, "contract_actions", act_id, biz)
+    if not act:
+        raise not_found("Contract decision")
+    if not approve:
+        db.update(conn, "contract_actions", act_id, {"status": "REJECTED", "decided_by": actor}, biz)
+        return {"contract_id": act["contract_id"], "status": "REJECTED"}
+    if act["action"] == "EXTEND":
+        update_contract(conn, biz, act["contract_id"], {"end_date": act["new_end_date"], "status": "ACTIVE"}, actor)
+        msg = f"Contract extended to {act['new_end_date']}."
+    else:
+        update_contract(conn, biz, act["contract_id"], {"auto_renew": 0, "status": "ENDING"}, actor)
+        msg = "Auto-renewal turned off; the contract ends at expiry. Send the notice to the counterparty (sending is simulated)."
+    db.update(conn, "contract_actions", act_id, {"status": "APPROVED", "decided_by": actor}, biz)
+    return {"contract_id": act["contract_id"], "status": "APPROVED", "message": msg}

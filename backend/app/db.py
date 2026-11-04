@@ -50,6 +50,25 @@ def transaction(conn: sqlite3.Connection):
         raise
 
 
+def _migrate_approval_kinds(conn) -> None:
+    """Databases created before contract decisions existed reject the CONTRACT_ACTION approval kind; rebuild that table once."""
+    row = conn.execute("SELECT sql FROM sqlite_master WHERE type='table' AND name='approval_requests'").fetchone()
+    if not row or "CONTRACT_ACTION" in row[0]:
+        return
+    new_sql = row[0].replace("'INVOICE_REMINDER')", "'INVOICE_REMINDER','CONTRACT_ACTION')")
+    conn.execute("PRAGMA foreign_keys = OFF")
+    try:
+        conn.executescript(f"""BEGIN;
+            ALTER TABLE approval_requests RENAME TO approval_requests_old;
+            {new_sql};
+            INSERT INTO approval_requests SELECT * FROM approval_requests_old;
+            DROP TABLE approval_requests_old;
+            CREATE INDEX IF NOT EXISTS ix_approvals_biz ON approval_requests(business_id, status);
+            COMMIT;""")
+    finally:
+        conn.execute("PRAGMA foreign_keys = ON")
+
+
 def init_db(path: str | None = None) -> None:
     with _init_lock:
         conn = _connect(path)
@@ -57,6 +76,7 @@ def init_db(path: str | None = None) -> None:
             conn.execute("PRAGMA journal_mode = WAL")
             schema = (Path(__file__).parent / "schema.sql").read_text()
             conn.executescript(schema)
+            _migrate_approval_kinds(conn)
             conn.execute("INSERT OR IGNORE INTO schema_migrations(version) VALUES (?)", (SCHEMA_VERSION,))
         finally:
             conn.close()

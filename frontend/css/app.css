@@ -564,3 +564,32 @@ button.nav-group:focus-visible { outline: 2px solid var(--honey); outline-offset
 .nav a.main { display: grid; grid-template-columns: 18px minmax(0, 1fr) auto; column-gap: 10px; align-items: start; }
 .nav a.main .count { margin-left: 0; align-self: center; }
 .quick { position: sticky; bottom: 68px; z-index: 1; padding-bottom: 2px; }
+
+/* ---------- next-step prompts on answer cards */
+.bz-cta { display: grid; grid-template-columns: 22px 1fr auto; gap: 12px; align-items: center; margin-top: 12px; padding: 12px 14px;
+  border-radius: 12px; background: var(--honey-soft); border: 1px solid color-mix(in srgb, var(--honey-deep) 45%, var(--line)); }
+.bz-cta > svg { width: 20px; height: 20px; color: var(--honey-ink); }
+.bz-cta b { display: block; font-size: 14px; }
+.bz-cta span { display: block; font-size: 12.5px; color: var(--ink-2); margin-top: 2px; }
+.bz-cta.wait { background: var(--surface-2); }
+.bz-decisions { margin-top: 14px; border-top: 1px solid var(--line); padding-top: 12px; }
+.bz-dh { font-size: 13px; font-weight: 650; margin-bottom: 8px; }
+.bz-decide { padding: 10px 0; border-bottom: 1px dashed var(--line); }
+.bz-decide:last-of-type { border-bottom: 0; }
+.bz-dt b { display: block; font-size: 13.5px; }
+.bz-dt span { display: block; font-size: 12.5px; color: var(--ink-3); margin-top: 1px; }
+.bz-opts { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 8px; margin-top: 8px; }
+.bz-opt { position: relative; text-align: left; font: inherit; cursor: pointer; padding: 10px 12px; border-radius: 10px; border: 1.5px solid var(--line-2);
+  background: var(--surface); color: var(--ink); display: grid; gap: 3px; }
+.bz-opt b { font-size: 13.5px; }
+.bz-opt small { font-size: 12px; color: var(--ink-3); line-height: 1.35; }
+.bz-opt:hover:not(:disabled) { border-color: var(--honey-deep); background: var(--honey-soft); }
+.bz-opt.rec { border-color: var(--honey-deep); }
+.bz-opt .tag { position: absolute; top: -9px; right: 10px; font-size: 11px; font-weight: 650; background: var(--honey); color: #16140f; padding: 1px 8px; border-radius: 99px; }
+.bz-opt:disabled { opacity: .55; cursor: not-allowed; }
+.bz-opt:focus-visible { outline: 3px solid color-mix(in srgb, var(--honey) 55%, transparent); }
+.bz-dpend { display: flex; align-items: center; gap: 8px; margin-top: 8px; font-size: 13px; flex-wrap: wrap; }
+.bz-dpend svg { width: 16px; height: 16px; color: var(--honey-ink); }
+.bz-dpend .btn:first-of-type { margin-left: auto; }
+.bz-dnote { font-size: 12px; color: var(--ink-3); margin: 8px 0 0; }
+@media (max-width: 720px) { .bz-cta { grid-template-columns: 22px 1fr; } .bz-cta .btn { grid-column: 1 / -1; justify-content: center; } }

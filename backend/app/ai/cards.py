@@ -54,7 +54,7 @@ def build_cards(tool_outputs: list, currency: str) -> list[dict]:
     plan = _latest(tool_outputs, "get_restock_plan")
     low = _latest(tool_outputs, "get_low_stock_products")
     if plan and plan.get("items"):
-        rows = [{"product": i["product"], "unit": i.get("unit"), "stock_pct": i["stock_pct"], "level": i.get("level"),
+        rows = [{"product_id": i.get("product_id"), "product": i["product"], "unit": i.get("unit"), "stock_pct": i["stock_pct"], "level": i.get("level"),
                  "current": i.get("current_stock"), "max": i.get("max_stock"), "cover": i.get("days_of_cover"),
                  "supplier": i.get("supplier"), "quantity": i.get("quantity"), "cost": i.get("line_total"), "eta": i.get("eta"),
                  "on_order": i.get("already_on_order"), "why": i.get("rationale")} for i in plan["items"]]
@@ -67,7 +67,7 @@ def build_cards(tool_outputs: list, currency: str) -> list[dict]:
         cards.append({"type": "stock", "title": "Restock plan", "subtitle": "Refill to capacity, rounded to supplier minimums",
                       "rows": rows, "total": None if drafted else plan.get("estimated_total")})
     elif low and low.get("products"):
-        rows = [{"product": p["name"], "unit": p.get("unit"), "stock_pct": p["stock_pct"], "current": p.get("current_stock"),
+        rows = [{"product_id": p.get("id"), "product": p["name"], "unit": p.get("unit"), "stock_pct": p["stock_pct"], "current": p.get("current_stock"),
                  "max": p.get("max_stock"), "cover": p.get("days_of_cover"), "supplier": p.get("supplier_name")}
                 for p in low["products"]]
         cards.append({"type": "stock", "title": "Below the stock threshold", "rows": rows})
@@ -105,7 +105,8 @@ def build_cards(tool_outputs: list, currency: str) -> list[dict]:
     if items:
         cards.append({"type": "contracts", "title": "Contract deadlines", "items": [
             {k: c.get(k) for k in ("id", "title", "counterparty", "end_date", "days_to_expiry", "notice_deadline",
-                                   "days_to_notice_deadline", "auto_renew", "value", "value_period", "payment_terms")}
+                                   "days_to_notice_deadline", "auto_renew", "value", "value_period", "payment_terms",
+                                   "status", "suggestions")}
             for c in items]})
 
     # ---- priorities

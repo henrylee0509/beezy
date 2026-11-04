@@ -229,3 +229,35 @@ def test_insights_are_backed_by_data(conn, biz):
     insights.refresh(conn, biz)
     beans = [r for r in insights.list_(conn, biz) if r["title"] == "Restock Coffee Beans"][0]
     assert beans["status"] == "COMPLETED"   # auto-resolved once on order
+
+
+# ---------------- contract decisions (extend / end at expiry) go through approvals
+def _coffee(conn, biz):
+    return contracts.find_contract(conn, biz, "Coffee Supply")
+
+
+def test_contract_suggestions_offer_extend_end_and_renegotiate(conn, biz):
+    c = _coffee(conn, biz)
+    acts = [o["action"] for o in c["suggestions"]]
+    assert acts == ["EXTEND", "END_AT_EXPIRY", "RENEGOTIATE"]
+    assert [o["action"] for o in c["suggestions"] if o["recommended"]] == ["EXTEND"]      # a supplier deal: keep it
+
+
+def test_extend_contract_waits_for_approval_then_moves_end_date(conn, biz):
+    c = _coffee(conn, biz)
+    r = contracts.propose_action(conn, biz, c["id"], "EXTEND", "user:owner", months=12)
+    assert contracts.get_contract(conn, biz, c["id"])["end_date"] == c["end_date"]       # nothing changes yet
+    assert any(o.get("pending") for o in contracts.get_contract(conn, biz, c["id"])["suggestions"])
+    approvals.decide(conn, biz, r["approval_id"], True, "user:owner", "OWNER")
+    after = contracts.get_contract(conn, biz, c["id"])
+    assert after["end_date"] > c["end_date"] and after["end_date"][:4] == str(int(c["end_date"][:4]) + 1)
+
+
+def test_end_at_expiry_turns_off_auto_renew_after_approval(conn, biz):
+    c = _coffee(conn, biz)
+    r = contracts.propose_action(conn, biz, c["id"], "END_AT_EXPIRY", "user:owner")
+    with pytest.raises(ApiError):
+        approvals.decide(conn, biz, r["approval_id"], True, "user:manager", "MANAGER")    # owner-only decision
+    approvals.decide(conn, biz, r["approval_id"], True, "user:owner", "OWNER")
+    after = contracts.get_contract(conn, biz, c["id"])
+    assert after["auto_renew"] == 0 and after["status"] == "ENDING"

@@ -21,7 +21,7 @@ export function bindApprovals(root, after) {
     el.disabled = true;
     try {
       const r = await api.post(`/api/approvals/${el.dataset.approve}/approve`);
-      toast(r.kind === 'PURCHASE_ORDER' ? 'Approved — order submitted to supplier (simulated)' : 'Approved', 'ok');
+      toast(r.kind === 'PURCHASE_ORDER' ? 'Approved — order submitted to supplier (simulated)' : (r.result && r.result.message) || 'Approved', 'ok');
       refreshCounts();
       after && after(r);
     } catch (err) { errToast(err); el.disabled = false; }

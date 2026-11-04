@@ -120,6 +120,8 @@ def run_mock(run, text: str) -> str:
         said.append("No new orders were needed: " + "; ".join(f"{s_['product']} ({s_['reason']})" for s_ in d["skipped"]) + ".")
     elif plan_ and plan_["estimated_total"]:
         said.append(f"Restocking everything low would cost about {m(plan_['estimated_total'])} (estimate).")
+    if low and low["count"] and not d:
+        said.append("Want me to restock them? Press **Prepare orders** below and the orders go to To approve.")
     af = r.get("evaluate_affordability")
     fs = r.get("get_financial_summary")
     if af:
@@ -142,6 +144,8 @@ def run_mock(run, text: str) -> str:
              and 0 <= x["days_to_notice_deadline"] <= ex["within_days"]]
         if n:
             said.append(f"{n[0]['title']} needs a renewal decision by {n[0]['notice_deadline']}.")
+        if any(x.get("suggestions") for x in ex["contracts"]):
+            said.append("Choose **Extend**, **End when it expires** or **Renegotiate first** below; extending or ending goes to To approve.")
     ar = r.get("get_accounts_receivable")
     if ar and ar["overdue_count"] and not af:
         said.append(f"{ar['overdue_count']} customer invoices ({m(ar['total_overdue'])}) are overdue.")

@@ -84,6 +84,10 @@ def _extract_actions(tool_name: str, result: dict) -> list[dict]:
                     "detail": f"Net {result['total_net']:,.2f} · employer {result['total_employer_cost']:,.2f}"
                               + (f" · {sum(1 for a in result.get('anomalies', []) if a.get('severity') == 'HIGH')} issue(s)" if result.get("anomalies") else ""),
                     "link": "#/payroll"})
+    elif tool_name == "propose_contract_action" and result.get("approval_id"):
+        out.append({"type": "CONTRACT_ACTION", "title": result.get("title") or "Contract decision", "amount": None,
+                    "status": "AWAITING_APPROVAL", "approval_id": result["approval_id"], "ref_id": result.get("action_id"),
+                    "detail": result.get("summary", ""), "link": "#/contracts"})
     elif tool_name == "record_transaction":
         out.append({"type": "TRANSACTION", "title": f"Recorded {result['category']} transaction", "amount": result["amount"],
                     "status": "RECORDED", "approval_id": None, "ref_id": result["transaction_id"], "link": "#/finance"})
@@ -123,7 +127,7 @@ How to work:
 1. Decide which specialists are actually needed — do not consult agents that are irrelevant to the request.
 2. Give each specialist a precise task. If the owner asks you to DO something (restock, prepare payroll, draft orders), tell the relevant specialist to perform that action.
 3. For questions about affordability or overall priorities, consult the Business Intelligence Agent (it has evaluate_affordability and the health snapshot), plus domain agents as needed.
-4. Then write the final answer for the owner. The app shows the tool data as visual cards under your answer (stock gauges, purchase orders with approve buttons, cash runway, payroll, contract deadlines, priorities), so do NOT repeat tables or long lists of figures. Write a short summary (under ~120 words): the direct answer first, the one or two figures that matter most (labelled recorded or estimated), then up to three prioritised next steps. Mention that drafted orders or payroll are waiting for approval if any were prepared.
+4. Then write the final answer for the owner. The app shows the tool data as visual cards under your answer (stock gauges, purchase orders with approve buttons, cash runway, payroll, contract deadlines, priorities), so do NOT repeat tables or long lists of figures. Write a short summary (under ~120 words): the direct answer first, the one or two figures that matter most (labelled recorded or estimated), then up to three prioritised next steps. Mention that drafted orders or payroll are waiting for approval if any were prepared. If products are low and no orders were drafted, end by offering to restock (the app shows a Prepare orders button). If a contract needs a decision, offer the choices: extend it, let it end at expiry, or renegotiate first (the app shows these as buttons that send the decision to the owner's approval queue). Only call propose_contract_action when the owner has clearly asked to extend, renew, end or cancel a specific contract.
 {GROUNDING_RULES}"""
 
 

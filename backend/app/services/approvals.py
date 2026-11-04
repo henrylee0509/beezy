@@ -39,7 +39,7 @@ def get(conn, biz: int, aid: int) -> dict:
 
 
 def decide(conn, biz: int, aid: int, approve: bool, actor: str, role: str, reason: str = "") -> dict:
-    from . import payroll, procurement
+    from . import contracts, payroll, procurement
     a = get(conn, biz, aid)
     if a["status"] != "PENDING":
         raise bad_request(f"Request already {a['status'].lower()}")
@@ -54,11 +54,15 @@ def decide(conn, biz: int, aid: int, approve: bool, actor: str, role: str, reaso
                 result = payroll.approve_run(conn, biz, a["ref_id"], actor, role)
             elif a["kind"] == "PAYROLL_PAYMENT":
                 result = payroll.record_payment(conn, biz, a["ref_id"], actor, role)
+            elif a["kind"] == "CONTRACT_ACTION":
+                result = contracts.apply_action(conn, biz, a["ref_id"], actor, True)
         else:
             if a["kind"] == "PURCHASE_ORDER":
                 procurement.cancel_po(conn, biz, a["ref_id"], actor, reason or "Rejected by approver")
             elif a["kind"] == "PAYROLL":
                 db.update(conn, "payroll_runs", a["ref_id"], {"status": "DRAFT"}, biz)
+            elif a["kind"] == "CONTRACT_ACTION":
+                contracts.apply_action(conn, biz, a["ref_id"], actor, False)
         db.update(conn, "approval_requests", aid, {"status": "APPROVED" if approve else "REJECTED",
                                                    "decided_by": actor, "decided_at": now_iso(), "reason": reason}, biz)
         audit(conn, biz, actor_type_for(actor), actor, "approval.approve" if approve else "approval.reject",
