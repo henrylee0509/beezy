@@ -25,7 +25,7 @@ SLIDES = {
     "bumper": 3.0,
     "trust": 9.5,
     "next": 6.5,
-    "close": 6.5,
+    "close": 9.0,
 }
 
 FFMPEG_OUT = ["-c:v", "libx264", "-preset", "medium", "-crf", "18", "-pix_fmt", "yuv420p", "-r", str(FPS),

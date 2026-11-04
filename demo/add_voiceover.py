@@ -4,7 +4,7 @@ Usage:  python demo/add_voiceover.py CLIPS_DIR_OR_ZIP lines.json Beezy_demo.mp4 
 
 CLIPS_DIR holds 01.mp3/.wav, 02..., one per entry in lines.json ({"id", "start", "text"}).
 Each clip starts 0.3 s after its scene; a clip that would run into the next scene is sped up
-slightly (at most 1.18x) and otherwise allowed to finish under the next scene's opening.
+slightly (at most 1.10x); the next line then waits until it has finished.
 """
 from __future__ import annotations
 
@@ -16,7 +16,8 @@ import zipfile
 from pathlib import Path
 
 LEAD = 0.3
-MAX_TEMPO = 1.18
+MAX_TEMPO = 1.10
+GAP = 0.25
 
 
 def duration(p: Path) -> float:
@@ -33,15 +34,17 @@ def main():
     lines = json.loads(lines_p.read_text(encoding="utf-8"))
     total = duration(video)
     inputs, filters, labels = [], [], []
+    prev_end = 0.0
     for i, line in enumerate(lines):
         clip = next((p for p in src.rglob(f"{line['id']}.*") if p.suffix in (".mp3", ".wav", ".m4a")), None)
         if clip is None:
             print(f"missing clip {line['id']} ({line['scene']}), skipped")
             continue
-        start = line["start"] + LEAD
+        start = max(line["start"] + LEAD, prev_end + GAP)   # never overlap the previous line
         end = lines[i + 1]["start"] - 0.15 if i + 1 < len(lines) else total - 0.4
         d = duration(clip)
         tempo = min(MAX_TEMPO, max(1.0, d / max(0.5, end - start)))
+        prev_end = start + d / tempo
         k = len(inputs) // 2
         inputs += ["-i", str(clip)]
         ms = int(start * 1000)
