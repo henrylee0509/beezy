@@ -24,7 +24,7 @@ Ask *"Can I afford to restock and pay everyone next month?"* and you watch the a
 Requires Python 3.11 or newer.
 
 ```bash
-git clone https://github.com/henrylee0509/bizpilot.git && cd bizpilot
+git clone https://github.com/henrylee0509/beezy.git && cd beezy
 python3 -m venv .venv && source .venv/bin/activate      # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 cp .env.example .env                                     # Windows: copy .env.example .env
