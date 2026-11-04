@@ -65,8 +65,8 @@ Detect. Prepare. You approve. That's Beezy. Thanks for watching.
 Use these lines instead only if your footage shows "Mock AI mode":
 
 - **0:47 · Overview:** "Mia signs in to a morning briefing that pulls the key numbers from every department, each one checked against her records."
-- **1:18 · Under the hood:** "Here's what that request looks like when Beezy runs on Muse Spark. The Executive Assistant sends the question with six agents as tools, Muse Spark calls them in parallel, and the real data comes back by tool call ID. Voice goes through Muse Voice Transcribe."
 - **0:59 · Health check:** "She asks for a health check. The Executive Assistant decides which departments it needs, and you can watch each one work through real tool calls on her data. She gets a short summary and visual cards built from her records."
+- **1:18 · Under the hood:** "Here's what that request looks like when Beezy runs on Muse Spark. The Executive Assistant sends the question with six agents as tools, Muse Spark calls them in parallel, and the real data comes back by tool call ID. Voice goes through Muse Voice Transcribe."
 
 ## Recording tips
 
