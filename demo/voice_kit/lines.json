@@ -27,71 +27,71 @@
   "id": "05",
   "start": 47.0,
   "scene": "Overview",
-  "text": "Mia signs in to a morning briefing that pulls the key numbers from every department, each one checked against her records."
+  "text": "Mia signs in to a morning briefing, every figure checked against her records. She doesn't need to know what to type: two drop-down lists build the request for her."
  },
  {
   "id": "06",
-  "start": 59.03,
+  "start": 60.0,
   "scene": "Health check",
-  "text": "She asks for a health check. The Executive Assistant decides which departments it needs, and you can watch each one work through real tool calls on her data. She gets a short summary and visual cards built from her records."
+  "text": "She asks for a health check. While it works, Beezy shows each department's progress, step by step. Then she gets a short summary and visual cards built from her records."
  },
  {
   "id": "07",
-  "start": 78.03,
+  "start": 79.0,
   "scene": "Under the hood",
   "text": "Here's that request as Muse Spark sees it. Six agents are offered as tools, Muse Spark calls them in parallel, and the real data flows back. Voice commands use Muse Voice Transcribe."
  },
  {
   "id": "08",
-  "start": 91.53,
+  "start": 92.5,
   "scene": "Restock",
   "text": "Now one tap asks it to act: restock everything that's running low. The Procurement agent drafts three purchase orders, but only drafts them. One click on Approve all, and they're sent to suppliers. In this version, sending is simulated."
  },
  {
   "id": "09",
-  "start": 105.23,
+  "start": 106.67,
   "scene": "Supplier choice",
   "text": "Why Highland Roasters and not the cheaper supplier? The cheaper one can't deliver before the beans run out in four days. That comparison is plain, testable code."
  },
  {
   "id": "10",
-  "start": 114.23,
+  "start": 114.67,
   "scene": "Contracts",
-  "text": "Every contract deadline sits on one timeline, with notice deadlines in red. She drops in a new pastry contract, and the Contract agent pulls out the terms and the notice clause, with page references."
+  "text": "Every contract deadline sits on one timeline. For each one, Beezy suggests what to do: extend, let it end, or renegotiate. Extending goes to To approve first. Then she drops in a new pastry contract, and the Contract agent pulls out the terms."
  },
  {
   "id": "11",
-  "start": 129.23,
+  "start": 131.7,
   "scene": "Payroll",
   "text": "Payroll is calculated in code, never by the model, and it flags problems before payday: one missing timesheet, one missing bank account."
  },
  {
   "id": "12",
-  "start": 137.27,
+  "start": 139.7,
   "scene": "Automation",
   "text": "Automations react on their own. When oat milk drops below twenty percent, a purchase order is drafted for approval straight away."
  },
  {
   "id": "13",
-  "start": 146.27,
+  "start": 147.7,
   "scene": "Rules",
   "text": "Each rule shows exactly how it works, and every one ends with the owner approving."
  },
  {
   "id": "14",
-  "start": 152.3,
+  "start": 153.7,
   "scene": "Built to be trusted",
-  "text": "That's what makes it trustworthy: verified figures, human approval for anything involving money, role-aware agents, and fifty-three automated tests, including the Muse Spark tool-calling path."
+  "text": "That's what makes it trustworthy: verified figures, human approval for anything involving money, role-aware agents, and fifty-six automated tests, including the Muse Spark tool-calling path."
  },
  {
   "id": "15",
-  "start": 161.8,
+  "start": 163.2,
   "scene": "What's next",
   "text": "Next: live sales and bank feeds, orders sent straight to suppliers, and verified payroll packs."
  },
  {
   "id": "16",
-  "start": 168.3,
+  "start": 169.7,
   "scene": "Close",
   "text": "Detect. Prepare. You approve. That's Beezy. Thanks for watching."
  }

@@ -42,6 +42,7 @@ function stock(c, live = {}) {
 
 // Offer to draft the orders when the answer only looked at stock; show what is already waiting otherwise.
 function restockCta(c, live) {
+  if (c.rows.some(r => r.drafted)) return '';   // this answer already drafted the orders; its orders card has the buttons
   const todo = c.rows.filter(r => r.product_id && r.supplier && !r.on_order && !r.drafted);
   const waiting = Object.values(live.approvals || {}).filter(a => a.kind === 'PURCHASE_ORDER' && a.status === 'PENDING');
   if (waiting.length) {
