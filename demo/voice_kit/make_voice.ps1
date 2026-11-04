@@ -23,7 +23,7 @@ if ($py) {
       Write-Host "Scene $($l.id): $($l.scene)"
       $txt = Join-Path $out "$($l.id).txt"
       [IO.File]::WriteAllText($txt, $l.text, (New-Object Text.UTF8Encoding $false))
-      & $py -m edge_tts --voice en-US-AndrewNeural --rate=+4% --file $txt --write-media (Join-Path $out "$($l.id).mp3")
+      & $py -m edge_tts --voice en-US-AvaNeural --rate=+6% --pitch=+2Hz --file $txt --write-media (Join-Path $out "$($l.id).mp3")
       if ($LASTEXITCODE -ne 0) { $neural = $false; break }
       Remove-Item $txt
     }
@@ -36,7 +36,7 @@ if (-not $neural) {
   Get-ChildItem $out | Remove-Item -Force
   Add-Type -AssemblyName System.Speech
   $s = New-Object System.Speech.Synthesis.SpeechSynthesizer
-  $pick = $s.GetInstalledVoices() | ForEach-Object { $_.VoiceInfo.Name } | Where-Object { $_ -match "Aria|Guy|Jenny|David|Mark|Zira" } | Select-Object -First 1
+  $pick = $s.GetInstalledVoices() | ForEach-Object { $_.VoiceInfo.Name } | Where-Object { $_ -match "Zira|Aria|Jenny|David|Mark" } | Sort-Object { if ($_ -match "Zira|Aria|Jenny") { 0 } else { 1 } } | Select-Object -First 1
   if ($pick) { $s.SelectVoice($pick) }
   $s.Rate = 1
   foreach ($l in $lines) {
