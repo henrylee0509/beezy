@@ -63,6 +63,7 @@ const P = {
   logout: '<path d="M15 4h4v16h-4M10 17l5-5-5-5M15 12H3"/>',
   moon: '<path d="M21 13A9 9 0 1 1 11 3a7 7 0 0 0 10 10z"/>',
   check: '<path d="M5 12l5 5L20 7"/>',
+  chev: '<path d="M9 5l7 7-7 7"/>',
   shield: '<path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/>',
   bi: '<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3M8 13l2-2 2 2 2-3"/>',
 };

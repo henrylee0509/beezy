@@ -11,7 +11,7 @@ from pathlib import Path
 
 ORDER = ["slide_title", "slide_problem", "slide_solution", "slide_arch", "slide_bumper",
          "clip_overview", "clip_health", "clip_restock", "clip_supplier", "clip_contract", "clip_payroll",
-         "clip_automation", "clip_activity", "slide_trust", "slide_next", "slide_close"]
+         "clip_automation", "clip_rules", "slide_trust", "slide_next", "slide_close"]
 
 
 def duration(path: Path) -> float:

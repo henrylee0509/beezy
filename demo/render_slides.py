@@ -18,11 +18,11 @@ W, H = 1920, 1080
 # slide id -> seconds on screen (fades are added inside each file)
 SLIDES = {
     "title": 9.0,
-    "problem": 14.0,
+    "problem": 13.0,
     "solution": 12.0,
-    "arch": 19.0,
+    "arch": 18.0,
     "bumper": 3.0,
-    "trust": 11.0,
+    "trust": 10.5,
     "next": 8.0,
     "close": 7.0,
 }

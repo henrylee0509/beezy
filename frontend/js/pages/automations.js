@@ -2,6 +2,17 @@ import { api } from '../api.js';
 import { refreshCounts } from '../app.js';
 import { can, errToast, esc, field, fmt, icon, modal, on, skeleton, statusBadge, toast } from '../ui.js';
 
+const ACT_ICON = { ALERT: 'bell', FORECAST: 'finance', DRAFT_PO: 'procurement', RECOMMEND: 'insights', REMINDER: 'contracts',
+  PREPARE_PAYROLL: 'payroll', DRAFT_REMINDER_EMAIL: 'contracts' };
+const trigLabel = (r) => {
+  const p = r.params || {};
+  const map = { STOCK_BELOW_PCT: `stock drops below ${p.pct ?? 20}%`, STOCK_CRITICAL: `stock drops below ${p.pct ?? 5}%`,
+    INVOICE_OVERDUE: `an invoice is ${p.days ?? 30}+ days overdue`, BILL_DUE_SOON: `a bill is due within ${p.days ?? 7} days`,
+    CONTRACT_EXPIRING: 'a contract deadline is near', PAYROLL_DUE: `payday is ${p.days_before ?? 5} days away`,
+    EXPENSE_OVER_BUDGET: 'spending nears a budget', REVENUE_BELOW_TARGET: 'revenue falls behind target', DELIVERY_DELAYED: 'a delivery is late' };
+  return map[r.trigger_type] || r.trigger_label.toLowerCase();
+};
+
 export async function render(el) {
   el.innerHTML = `<div class="page-head"><div><h1>Automations</h1><div class="lead">Rules that watch your business and prepare work. Anything that commits money still goes to the approval queue unless you switch on auto-approval with a spending limit in Settings.</div></div>
     <div class="actions">${can('automations.write') ? `<button class="btn" id="runAll">${icon('automations')} Run all now</button><button class="btn primary" id="newRule">${icon('plus')} New rule</button>` : ''}</div></div>
@@ -11,15 +22,18 @@ export async function render(el) {
   async function load() {
     try { [data] = await Promise.all([api.get('/api/automations')]); } catch (e) { return errToast(e); }
     const s = data.settings;
-    el.querySelector('#policy').innerHTML = `<div class="action-card" style="margin:0 0 16px">${icon('shield')}<div class="ac-main"><div class="ac-title">Approval policy</div>
+    el.querySelector('#policy').innerHTML = `<div class="action-card" style="margin:0 0 16px"><span class="bz-hex sm">${icon('shield')}</span><div class="ac-main"><div class="ac-title">Approval policy</div>
       <div class="small muted">${s.auto_po_enabled ? `Automation-drafted orders up to ${fmt.money(s.auto_approve_limit)} are approved automatically.` : 'Every automated purchase order needs a human approval.'}
       Managers can approve orders up to ${fmt.money(s.manager_spending_limit)}; larger orders need the owner. Payroll always needs the owner.</div></div><a class="btn sm ghost" href="#/settings">Change</a></div>`;
-    el.querySelector('#rules').innerHTML = data.rules.map(r => `<article class="panel" style="padding:16px 18px">
+    el.querySelector('#rules').innerHTML = data.rules.map(r => `<article class="panel rule ${r.enabled ? '' : 'off'}" style="padding:16px 18px">
       <div class="row"><h3>${esc(r.name)}</h3><span style="margin-left:auto">${r.enabled ? '<span class="badge green">Active</span>' : '<span class="badge">Paused</span>'}</span></div>
       <p class="muted small" style="margin:6px 0 10px">${esc(r.description || '')}</p>
-      <dl class="kv"><dt>Trigger</dt><dd>${esc(r.trigger_label)}${Object.keys(r.params || {}).length ? ` <span class="muted">(${Object.entries(r.params).map(([k, v]) => `${esc(k.replace(/_/g, ' '))}: ${esc(v)}`).join(', ')})</span>` : ''}</dd>
-        <dt>Actions</dt><dd>${r.action_labels.map(esc).join(', ') || '—'}</dd><dt>Approval</dt><dd>${r.approval_required ? 'Required' : 'Not needed (informational)'}</dd>
-        <dt>Last run</dt><dd>${r.last_run ? `${statusBadge(r.last_run.status)} ${esc(r.last_run.summary || '')} <span class="muted small">${fmt.datetime(r.last_run.finished_at)}</span>` : '<span class="muted">Not run yet</span>'}</dd></dl>
+      <div class="flow-label">How it works</div>
+      <div class="flow"><span class="step when">${icon('bell')}When ${esc(trigLabel(r))}</span>
+        ${r.actions.map(a => `<span class="arr">${icon('chev')}</span><span class="step">${icon(ACT_ICON[a] || 'check')}${esc(data.actions[a] || a)}</span>`).join('')}
+        ${r.approval_required ? `<span class="arr">${icon('chev')}</span><span class="step ok">${icon('approvals')}Owner approves</span>` : ''}</div>
+      <div class="flow-label">Last run</div>
+      <div class="small">${r.last_run ? `${statusBadge(r.last_run.status)} ${esc(r.last_run.summary || '')} <span class="muted">${fmt.datetime(r.last_run.finished_at)}</span>` : '<span class="muted">Not run yet</span>'}</div>
       ${can('automations.write') ? `<div class="row" style="margin-top:12px"><button class="btn sm" data-run="${r.id}">Run now</button><button class="btn sm ghost" data-toggle="${r.id}">${r.enabled ? 'Pause' : 'Activate'}</button><button class="btn sm ghost" data-edit="${r.id}">Edit</button></div>` : ''}
     </article>`).join('');
     const h = await api.get('/api/automations/history?limit=25');

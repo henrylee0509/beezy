@@ -1,10 +1,15 @@
 import { api } from '../api.js';
+import { contractTimeline } from '../cards.js';
 import { can, errToast, esc, field, fmt, icon, modal, on, skeleton, toast } from '../ui.js';
 
 export async function render(el) {
   el.innerHTML = `<div class="page-head"><div><h1>Contracts</h1><div class="lead">Upload agreements and the Contract Agent extracts dates, payment terms and renewal clauses, then reminds you before deadlines.</div></div>
     <div class="actions"><a class="btn" href="#/assistant?q=${encodeURIComponent('Which contracts expire or need a renewal decision in the next 60 days? Cite the clauses.')}">${icon('sparkle')} Ask about contracts</a>
     ${can('contracts.write') ? `<label class="btn primary" style="cursor:pointer">${icon('upload')} Upload contract<input type="file" id="up" accept=".pdf,.docx,.txt" hidden></label>` : ''}</div></div>
+    ${can('contracts.write') ? `<label class="dropzone" id="drop" for="up"><span class="bz-hex">${icon('upload')}</span>
+      <div><b>Drop a contract here, or click to upload</b><br><span>PDF, Word or text. The Contract agent extracts the term, payment terms, renewal and notice clauses with page references, then schedules reminders.</span></div></label>` : ''}
+    <section class="panel" style="margin-bottom:16px"><div class="panel-head"><span class="bz-hex sm">${icon('contracts')}</span><h2>Deadlines, next 90 days</h2><span class="sub">Red: last day to give notice · Yellow: auto-renews · Black: expires</span></div>
+      <div class="panel-body" id="timeline">${skeleton(2)}</div></section>
     <div class="row" style="margin-bottom:12px"><input class="input" id="q" placeholder="Search clauses, parties or terms across all contracts" style="max-width:420px"><span class="small muted" id="disclaimer"></span></div>
     <div id="search"></div>
     <div class="stack"><section class="panel"><div class="panel-body table-wrap" id="tbl">${skeleton(5)}</div></section>
@@ -14,6 +19,7 @@ export async function render(el) {
   async function load() {
     try { data = await api.get('/api/contracts'); } catch (e) { return errToast(e); }
     el.querySelector('#disclaimer').textContent = data.disclaimer;
+    el.querySelector('#timeline').innerHTML = contractTimeline(data.contracts);
     el.querySelector('#tbl').innerHTML = `<table class="t"><thead><tr><th>Contract</th><th>Counterparty</th><th>Start</th><th>Expires</th><th>Renewal</th><th class="right">Value</th><th>Source</th></tr></thead><tbody>
       ${data.contracts.map(c => `<tr><td class="strong"><a href="#" data-open="${c.id}">${esc(c.title)}</a><div class="small muted">${esc(c.category)}</div></td><td>${esc(c.counterparty || '—')}</td>
         <td>${fmt.date(c.start_date)}</td><td>${fmt.date(c.end_date)}<div class="small muted">${c.days_to_expiry !== null ? fmt.rel(c.days_to_expiry) : ''}</div></td>
@@ -81,9 +87,19 @@ export async function render(el) {
     await pr;
   }
 
+  const drop = el.querySelector('#drop');
+  if (drop) {
+    ['dragenter', 'dragover'].forEach(ev => drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.add('over'); }));
+    ['dragleave', 'drop'].forEach(ev => drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.remove('over'); }));
+    drop.addEventListener('drop', (e) => { const f = e.dataTransfer.files[0]; if (f) uploadFile(f); });
+  }
   el.querySelector('#up')?.addEventListener('change', async (e) => {
     const file = e.target.files[0];
     if (!file) return;
+    await uploadFile(file);
+    e.target.value = '';
+  });
+  async function uploadFile(file) {
     const fd = new FormData();
     fd.append('file', file);
     toast(`Reading ${file.name} with the Contract Agent…`);
@@ -93,8 +109,7 @@ export async function render(el) {
       await load();
       openContract(r.contract.id);
     } catch (err) { errToast(err); }
-    e.target.value = '';
-  });
+  }
 
   let t;
   el.querySelector('#q').addEventListener('input', (e) => {

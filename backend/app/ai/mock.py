@@ -29,7 +29,7 @@ ALL = ["inventory", "procurement", "finance", "hr", "contracts", "bi"]
 def plan(text: str) -> dict:
     t = text.lower()
     agents = [k for k, pat in ROUTES if re.search(pat, t)]
-    if re.search(r"health check|everything|whole business|complete|overall", t):
+    if re.search(r"health check|whole business|complete picture|overall", t):
         agents = ALL[:]
     if not agents:
         agents = ["bi"]
@@ -101,69 +101,51 @@ def run_mock(run, text: str) -> str:
             r["prepare_payroll"] = _call(run, key, "prepare_payroll")
         run.emit(name, "agent_finished", f"{name} finished", {})
     c = _cur(run)
-    out = ["> **Mock mode** — deterministic answer built from live business data. Set `MODEL_API_KEY` to use Muse Spark.", ""]
-    lines = []
+    m = lambda v: f"{c} {v:,.2f}"
+    out = ["> **Mock mode**: a deterministic summary of your live data. Set `MODEL_API_KEY` to have Muse Spark write it.", ""]
+    said = []
     low = r.get("get_low_stock_products")
-    if low:
-        if low["count"]:
-            lines.append("**Inventory** — " + "; ".join(f"{x['name']} {x['stock_pct']}% ({x['days_of_cover']} days of cover)" for x in low["products"]))
-        else:
-            lines.append("**Inventory** — all products are above the low-stock threshold.")
+    d = r.get("draft")
     plan_ = r.get("get_restock_plan")
-    if plan_ and plan_["items"]:
-        todo = [i for i in plan_["items"] if i.get("supplier") and not i.get("already_on_order")]
-        on_order = [f"{i['product']} ({i['already_on_order']})" for i in plan_["items"] if i.get("already_on_order")]
-        if todo:
-            lines.append(f"**Restock plan** — estimated {c} {plan_['estimated_total']:,.2f}: " + "; ".join(
-                f"{i['quantity']:g} × {i['product']} from {i['supplier']} ({c} {i['line_total']:,.2f})" for i in todo))
-        if on_order:
-            lines.append("**Already on order** — " + ", ".join(on_order) + ".")
-    fs = r.get("get_financial_summary")
-    if fs:
-        lines.append(f"**Finance ({fs['period_label']})** — revenue {c} {fs['revenue']:,.2f}, expenses {c} {fs['expenses']:,.2f}, "
-                     f"net operating profit {c} {fs['net_operating_profit']:,.2f}; cash balance {c} {fs['cash_balance']:,.2f} (recorded).")
-    ar = r.get("get_accounts_receivable")
-    if ar and ar["overdue_count"]:
-        lines.append(f"**Receivables** — {ar['overdue_count']} overdue invoice(s) totalling {c} {ar['total_overdue']:,.2f}.")
-    fc = r.get("forecast_cash_balance")
-    if fc:
-        lines.append(f"**30-day cash forecast** — committed scenario ends at {c} {fc['projected_committed_balance']:,.2f} "
-                     f"(lowest {c} {fc['lowest_committed_balance']:,.2f}); with estimated sales {c} {fc['projected_expected_balance']:,.2f} (estimate).")
-    pe = r.get("estimate_payroll")
-    if pe:
-        issues = [a for a in pe["anomalies"] if a["severity"] == "HIGH"]
-        lines.append(f"**Payroll {pe['period']}** (pay date {pe['pay_date']}) — gross {c} {pe['total_gross']:,.2f}, "
-                     f"total cost {c} {pe['total_cost_to_business']:,.2f} (deterministic estimate)"
-                     + (f"; {len(issues)} issue(s): " + "; ".join(f"{a['employee']}: {a['issue']}" for a in issues) if issues else "."))
-    ex = r.get("get_expiring_contracts")
-    if ex and ex["contracts"]:
-        lines.append("**Contracts** — " + "; ".join(
-            f"{x['title']} " + (f"(notice deadline {x['notice_deadline']})" if x.get("notice_deadline") and x["days_to_notice_deadline"] is not None
-                                and x["days_to_notice_deadline"] <= ex["within_days"] else f"(expires {x['end_date']})")
-            for x in ex["contracts"]))
+    if low and low["count"]:
+        worst = min(low["products"], key=lambda x: x["days_of_cover"] if x["days_of_cover"] is not None else 1e9)
+        said.append(f"**{low['count']} products need restocking.** {worst['name']} is most urgent, with "
+                    f"{worst['days_of_cover']} days of cover left.")
+    elif low:
+        said.append("**Stock is healthy.** Every product is above the low-stock threshold.")
+    if d and d["created"]:
+        said.append(f"I drafted **{len(d['created'])} purchase orders** ({m(d['total'])}). They're waiting for your approval below; "
+                    "nothing has been sent to suppliers.")
+    elif d and not d["created"]:
+        said.append("No new orders were needed: " + "; ".join(f"{s_['product']} ({s_['reason']})" for s_ in d["skipped"]) + ".")
+    elif plan_ and plan_["estimated_total"]:
+        said.append(f"Restocking everything low would cost about {m(plan_['estimated_total'])} (estimate).")
     af = r.get("evaluate_affordability")
+    fs = r.get("get_financial_summary")
     if af:
         rem = af["projected_balance_after_commitments"]["value"]
-        lines.append(f"**Affordability (next {af['horizon_days']} days)** — cash {c} {af['current_cash_balance']['value']:,.2f} vs committed outflows "
-                     f"{c} {af['total_committed_outflows']:,.2f} (payroll {c} {af['payroll_due']['value']:,.2f}, new restock {c} "
-                     f"{af['recommended_restock_cost']['value']:,.2f}, open orders {c} {af['open_purchase_orders_due']['value']:,.2f}); "
-                     f"projected balance {c} {rem:,.2f} before new sales → "
-                     + ("**affordable**." if af["affordable"] else "**shortfall** — phase purchases and collect receivables."))
-    recs = r.get("get_recommendations")
-    if recs and recs["recommendations"]:
-        lines.append("**Top priorities**\n" + "\n".join(f"{i}. {x['title']} — {x['suggested_action']}"
-                                                         for i, x in enumerate(recs["recommendations"][:3], 1)))
-    d = r.get("draft")
+        said.append(f"**{'You can cover' if af['affordable'] else 'Cash is tight for'} the next {af['horizon_days']} days.** After payroll, "
+                    f"bills and restocking you'd have {m(rem)} left before new sales (estimate).")
+    elif fs:
+        said.append(f"Cash is {m(fs['cash_balance'])} (recorded).")
+    pe = r.get("estimate_payroll")
     pp = r.get("prepare_payroll")
-    if (d and d["created"]) or pp:
-        acts = []
-        if d:
-            acts += [f"{x['po_number']} · {x['supplier']} · {c} {x['total']:,.2f} → {x['status'].replace('_', ' ').lower()}" for x in d["created"]]
-        if pp:
-            acts.append(f"Payroll {pp['period']} draft (gross {c} {pp['total_gross']:,.2f}) → awaiting owner approval")
-        lines.append("**Proposed actions awaiting your approval**\n" + "\n".join(f"- {a}" for a in acts))
-    elif d and not d["created"]:
-        lines.append("No new purchase orders were needed: " + "; ".join(f"{s['product']} ({s['reason']})" for s in d["skipped"]))
+    if pp:
+        said.append(f"Payroll {pp['period']} is prepared (gross {m(pp['total_gross'])}) and waiting for owner approval.")
+    elif pe:
+        issues = [a for a in pe["anomalies"] if a["severity"] == "HIGH"]
+        if issues:
+            said.append(f"Payroll on {pe['pay_date']} has {len(issues)} issues to fix first.")
+    ex = r.get("get_expiring_contracts")
+    if ex and ex["contracts"]:
+        n = [x for x in ex["contracts"] if x.get("notice_deadline") and x.get("days_to_notice_deadline") is not None
+             and 0 <= x["days_to_notice_deadline"] <= ex["within_days"]]
+        if n:
+            said.append(f"{n[0]['title']} needs a renewal decision by {n[0]['notice_deadline']}.")
+    ar = r.get("get_accounts_receivable")
+    if ar and ar["overdue_count"] and not af:
+        said.append(f"{ar['overdue_count']} customer invoices ({m(ar['total_overdue'])}) are overdue.")
     if denied:
-        lines.append(f"_Not available for your role ({run.ctx.role}): {', '.join(denied)}._")
-    return "\n".join(out + ["\n\n".join(lines) if lines else "I couldn't find relevant data for that request."])
+        said.append(f"_Not available for your role ({run.ctx.role}): {', '.join(denied)}._")
+    body = " ".join(said) if said else "I couldn't find relevant data for that request."
+    return "\n".join(out + [body])

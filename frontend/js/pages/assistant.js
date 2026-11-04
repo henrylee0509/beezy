@@ -3,6 +3,7 @@ import { refreshCounts } from '../app.js';
 import { bindApprovals, DEPTS } from '../components.js';
 import { aiSource, errToast, esc, fmt, icon, md, on, state, statusBadge, toast } from '../ui.js';
 import { WavRecorder } from '../voice.js';
+import { ordersCard, renderCards } from '../cards.js';
 
 const SUGGESTIONS = [
   'Give me a health check of my business. Check my inventory, upcoming expenses, payroll and cash flow. Tell me what I should prioritise.',
@@ -11,6 +12,14 @@ const SUGGESTIONS = [
   'Prepare payroll for all active employees.',
   'Which contracts need a decision in the next 30 days, and what are the payment terms with Highland Roasters?',
   'Find the cheapest supplier for our low-stock products, but make sure it arrives before we run out.',
+];
+
+const QUICK = [
+  ['overview', 'Health check', 'Give me a health check of my business. Check my inventory, upcoming expenses, payroll and cash flow. Tell me what I should prioritise.'],
+  ['procurement', 'Restock low items', 'Restock everything below 20% and make sure it arrives before we run out.'],
+  ['finance', 'Can I afford it?', 'Can I afford to restock inventory and pay my employees next month?'],
+  ['contracts', 'Contracts due', 'Which contracts need a decision in the next 30 days?'],
+  ['payroll', 'Prepare payroll', 'Prepare payroll for all active employees.'],
 ];
 
 let sessionId = null;
@@ -22,6 +31,7 @@ export async function render(el, params) {
       <div class="actions"><select class="input" id="sessionSel" style="width:auto" aria-label="Conversation"></select><button class="btn" id="newChat">${icon('plus')} New conversation</button></div></div>
     <div class="assistant-layout">
       <section class="panel convo"><div class="messages" id="messages"></div>
+        <div class="quick" id="quick">${QUICK.map(([ic, label, q]) => `<button type="button" data-quick="${esc(q)}">${icon(ic)}${esc(label)}</button>`).join('')}</div>
         <form class="composer" id="composer">
           <button type="button" class="icon-btn mic" id="micBtn" aria-label="Hold to speak" title="${state.me.ai.mode === 'real' ? 'Speak (Muse Voice Transcribe)' : 'Voice needs a Meta API key'}">${icon('mic')}</button>
           <textarea id="prompt" rows="1" placeholder="Ask Beezy about stock, cash, payroll, suppliers or contracts…" aria-label="Message"></textarea>
@@ -73,21 +83,13 @@ export async function render(el, params) {
     const meta = m.meta || {};
     const mode = meta.mode === 'real' ? `<span class="badge teal">Muse Spark</span>` : meta.mode === 'fallback' ? `<span class="badge amber">Fallback: Muse Spark unavailable</span>` : meta.mode ? `<span class="badge amber">Mock mode</span>` : '';
     const agents = (meta.agents || []).map(a => `<span class="badge outline" style="border-color:${DEPTS[a]?.color || 'var(--line)'};color:${DEPTS[a]?.color || 'inherit'}">${esc(DEPTS[a]?.short || a)}</span>`).join(' ');
-    const actions = (meta.actions || []).map(a => {
-      const ap = a.approval_id ? approvalsById[a.approval_id] : null;
-      const status = ap ? ap.status : a.status;
-      const canDecide = ap && ap.status === 'PENDING' && ap.can_decide !== false;
-      return `<div class="action-card"><div class="ac-main"><div class="ac-title">${esc(a.title)}</div><div class="small muted">${esc(a.detail || '')}</div></div>
-        ${a.amount ? `<span class="num" style="font-weight:650">${fmt.money(a.amount)}</span>` : ''}
-        ${canDecide ? `<div class="row"><button class="btn sm" data-reject="${a.approval_id}">Reject</button><button class="btn sm primary" data-approve="${a.approval_id}">Approve</button></div>`
-          : (ap && ap.status === 'PENDING' ? `<span class="badge amber">Needs ${esc(ap.required_role.toLowerCase())}</span>` : statusBadge(status === 'APPROVED' && a.type === 'PURCHASE_ORDER' ? 'SUBMITTED' : status))}
-        <a class="small" href="${a.link}">Open</a></div>`;
-    }).join('');
+    const cards = renderCards(meta.cards);
+    const orders = ordersCard(meta.actions || [], approvalsById);
     return `<div class="msg assistant"><div class="who"><b style="color:var(--ink)">Beezy</b> ${mode} ${agents}
         ${meta.duration_ms ? `<span>${(meta.duration_ms / 1000).toFixed(1)}s${meta.model_calls ? ` · ${meta.model_calls} model calls` : ''}</span>` : ''}</div>
       <div class="ai-prose">${md(m.content)}</div>
-      ${actions ? `<div style="margin-top:6px"><div class="small muted" style="font-weight:600">Prepared for your approval — nothing has been submitted or paid yet</div>${actions}</div>` : ''}
-      ${aiSource(null, meta.verification)}</div>`;
+      ${aiSource(null, meta.verification)}
+      ${orders || cards ? `<div class="bz-cards">${orders}${cards}</div>` : ''}</div>`;
   }
 
   // ---------------- operations floor
@@ -172,6 +174,19 @@ export async function render(el, params) {
   prompt.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(prompt.value); } });
   prompt.addEventListener('input', () => { prompt.style.height = 'auto'; prompt.style.height = Math.min(160, prompt.scrollHeight) + 'px'; });
   on(msgs, 'click', '[data-suggest]', (e, b) => send(b.dataset.suggest));
+  on(el, 'click', '[data-quick]', (e, b) => send(b.dataset.quick));
+  on(msgs, 'click', '[data-approve-all]', async (e, b) => {
+    b.disabled = true;
+    const ids = b.dataset.approveAll.split(',');
+    let ok = 0;
+    for (const id of ids) {
+      try { await api.post(`/api/approvals/${id}/approve`); ok++; } catch (err) { errToast(err); }
+    }
+    toast(`${ok} of ${ids.length} approved. Orders submitted to suppliers (simulated).`, 'ok');
+    refreshCounts();
+    await loadApprovals();
+    renderSession();
+  });
   el.querySelector('#newChat').onclick = () => { sessionId = null; stop(); running = false; renderSession(); loadSessions(); };
   el.querySelector('#sessionSel').onchange = (e) => { sessionId = e.target.value ? Number(e.target.value) : null; renderSession(); };
 

@@ -196,7 +196,7 @@ async def seg_overview(r: Recorder, url):
     await p.mouse.wheel(0, 560)
     await asyncio.sleep(1.8)
     await r.cap(None)
-    await r.clip_end("overview", max_seconds=14)
+    await r.clip_end("overview", max_seconds=13.5)
 
 
 async def seg_health(r: Recorder, url):
@@ -211,51 +211,57 @@ async def seg_health(r: Recorder, url):
     await asyncio.sleep(0.5)
     await r.cam(p.locator(".floor"), 1.35)
     await r.wait_answer()
-    await asyncio.sleep(1.2)
+    await asyncio.sleep(1.0)
     await r.cam(None)
-    await r.cap("One consolidated answer, grounded in the business's own data")
     msg = p.locator(".msg.assistant").last
-    await r.move_to(msg, 700, 0.5, 0.2)
-    await p.mouse.wheel(0, 700)
-    await asyncio.sleep(1.8)
-    await p.mouse.wheel(0, 900)
-    await asyncio.sleep(1.2)
-    await r.cap("Figures traced back to tool results", "Anything the verifier can't trace is flagged")
-    v = p.locator(".msg.assistant .verify").last
-    await r.move_to(v, 700)
-    await r.cam(v, 1.8)
-    await asyncio.sleep(1.8)
+    await msg.locator(".ai-prose").scroll_into_view_if_needed()
+    await r.cap("A short summary, then cards built from verified data")
+    await asyncio.sleep(1.4)
+    stock = msg.locator(".bz-card:has-text('Restock plan')")
+    await stock.scroll_into_view_if_needed()
+    await r.move_to(stock, 700, 0.3, 0.3)
+    await r.cap("Stock as honeycomb gauges, with days of cover", "Supplier picked so the order arrives before the stockout")
+    await r.cam(stock, 1.3)
+    await asyncio.sleep(2.2)
     await r.cam(None)
+    run = msg.locator(".bz-card:has-text('Can you afford')")
+    await run.scroll_into_view_if_needed()
+    await r.move_to(run, 700, 0.5, 0.4)
+    await r.cap("Cash runway, payroll and contract deadlines at a glance")
+    await asyncio.sleep(1.6)
+    tl = msg.locator(".bz-card:has-text('Contract deadlines')")
+    await tl.scroll_into_view_if_needed()
+    await r.move_to(tl, 700, 0.3, 0.5)
+    await asyncio.sleep(1.6)
     await r.cap(None)
-    await r.clip_end("health", max_seconds=21)
+    await r.clip_end("health", max_seconds=20)
 
 
 async def seg_restock(r: Recorder, url):
     p = r.page
     await r.clip_start()
-    box = p.locator("#prompt")
-    await r.click(box, 700)
+    chip = p.locator('[data-quick]:has-text("Restock low items")')
+    await chip.scroll_into_view_if_needed()
     await r.cap("Ask it to act, not just answer")
-    await p.keyboard.type("Restock everything below 20% and make sure it arrives before we run out.", delay=28)
-    await asyncio.sleep(0.4)
-    await p.keyboard.press("Enter")
+    await r.click(chip, 800)
     await asyncio.sleep(0.6)
     await r.cam(p.locator(".floor"), 1.3)
     await r.wait_answer()
-    await asyncio.sleep(0.8)
-    await r.cam(None)
-    cards = p.locator(".msg.assistant").last.locator(".action-card")
-    await cards.first.scroll_into_view_if_needed()
     await asyncio.sleep(0.6)
-    await r.cap("Agents only draft. The owner approves.", "Orders above the manager's limit need the owner")
-    await r.cam(cards.nth(1), 1.45)
-    await asyncio.sleep(1.4)
     await r.cam(None)
-    metro = p.locator('.msg.assistant .action-card:has-text("Metro Dairy") [data-approve]').last
-    await r.click(metro, 800)
-    await asyncio.sleep(1.8)
+    orders = p.locator(".msg.assistant").last.locator(".bz-card.orders")
+    await orders.scroll_into_view_if_needed()
+    await asyncio.sleep(0.4)
+    await r.cap("Agents only draft. The owner approves.", "Three purchase orders, sized and priced by the Procurement agent")
+    await r.cam(orders, 1.3)
+    await asyncio.sleep(1.6)
+    await r.click(p.locator(".msg.assistant").last.locator("[data-approve-all]"), 800)
+    await p.wait_for_selector('.msg.assistant .bz-card.orders:has-text("Approved and sent")', timeout=20000)
+    await r.cap("One click and the orders go to suppliers", "Simulated in this version: no real orders or payments are sent")
+    await asyncio.sleep(2.0)
+    await r.cam(None)
     await r.cap(None)
-    await r.clip_end("restock", max_seconds=16)
+    await r.clip_end("restock", max_seconds=17)
 
 
 async def seg_supplier(r: Recorder, url):
@@ -276,33 +282,35 @@ async def seg_supplier(r: Recorder, url):
     await r.cam(None)
     await p.keyboard.press("Escape")
     await r.cap(None)
-    await r.clip_end("supplier", max_seconds=11)
+    await r.clip_end("supplier", max_seconds=10)
 
 
 async def seg_contract(r: Recorder, url):
     p = r.page
     await r.clip_start()
     await r.click(p.locator('#nav a[data-path="contracts"]'), 700)
-    await p.wait_for_selector("#tbl table")
-    await r.cap("Upload a new supplier agreement")
-    await r.move_to(p.locator('label:has-text("Upload contract")'), 700)
+    await p.wait_for_selector("#timeline .bz-tl")
+    await r.cap("Every contract deadline on one timeline", "Red is the last day to give notice before an auto-renewal")
+    tl = p.locator("#timeline")
+    await r.move_to(tl, 700, 0.2, 0.5)
+    await r.cam(tl, 1.25)
+    await asyncio.sleep(2.0)
+    await r.cam(None)
+    await r.cap("Drop in a new supplier agreement")
+    await r.move_to(p.locator("#drop"), 700)
     await asyncio.sleep(0.4)
     await p.locator("#up").set_input_files(str(ROOT / "sample_docs" / "FreshBake_Pastry_Supply_Agreement_DEMO.pdf"))
     await p.wait_for_selector("#cd h2", timeout=120000)
-    await asyncio.sleep(0.8)
+    await asyncio.sleep(0.6)
     await r.cap("The Contract agent extracts the terms, with page references", "Reminders are scheduled before the notice deadline")
     kv = p.locator("#cd .kv").first
     await r.move_to(kv, 700)
     await r.cam(kv, 1.35)
-    await asyncio.sleep(2.0)
+    await asyncio.sleep(1.8)
     await r.cam(None)
-    clause = p.locator('#cd .action-card:has-text("Auto-renewal")').first
-    if await clause.count():
-        await r.move_to(clause, 700)
-        await asyncio.sleep(1.2)
     await p.keyboard.press("Escape")
     await r.cap(None)
-    await r.clip_end("contract", max_seconds=13)
+    await r.clip_end("contract", max_seconds=15)
 
 
 async def seg_payroll(r: Recorder, url):
@@ -321,7 +329,7 @@ async def seg_payroll(r: Recorder, url):
     await asyncio.sleep(2.2)
     await r.cam(None)
     await r.cap(None)
-    await r.clip_end("payroll", max_seconds=9)
+    await r.clip_end("payroll", max_seconds=8)
 
 
 async def seg_automation(r: Recorder, url):
@@ -347,23 +355,25 @@ async def seg_automation(r: Recorder, url):
     await r.clip_end("automation", max_seconds=9)
 
 
-async def seg_activity(r: Recorder, url):
+async def seg_rules(r: Recorder, url):
     p = r.page
     await r.clip_start()
-    await r.click(p.locator('#nav a[data-path="activity"]'), 700)
-    await p.wait_for_selector("#tbl table")
-    await r.click(p.locator('[data-a="AGENT"]'), 600)
-    await asyncio.sleep(0.4)
-    await r.cap("Every agent action is in the audit trail")
-    await asyncio.sleep(2.2)
+    await r.click(p.locator('#nav a[data-path="automations"]'), 700)
+    await p.wait_for_selector(".flow")
+    first = p.locator(".rule").first
+    await r.cap("Automations run on their own, and stop at the owner")
+    await r.move_to(first.locator(".flow"), 700, 0.2, 0.5)
+    await r.cam(first, 1.4)
+    await asyncio.sleep(2.4)
+    await r.cam(None)
     await r.cap(None)
-    await r.clip_end("activity", max_seconds=5)
+    await r.clip_end("rules", max_seconds=6)
 
 
 LIVE = False  # set from /api/health: captions never claim Muse Spark when the app runs in mock mode
 
 SEGMENTS = {"overview": seg_overview, "health": seg_health, "restock": seg_restock, "supplier": seg_supplier,
-            "contract": seg_contract, "payroll": seg_payroll, "automation": seg_automation, "activity": seg_activity}
+            "contract": seg_contract, "payroll": seg_payroll, "automation": seg_automation, "rules": seg_rules}
 
 
 async def main():

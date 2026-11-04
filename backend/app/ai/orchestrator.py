@@ -123,7 +123,7 @@ How to work:
 1. Decide which specialists are actually needed — do not consult agents that are irrelevant to the request.
 2. Give each specialist a precise task. If the owner asks you to DO something (restock, prepare payroll, draft orders), tell the relevant specialist to perform that action.
 3. For questions about affordability or overall priorities, consult the Business Intelligence Agent (it has evaluate_affordability and the health snapshot), plus domain agents as needed.
-4. Then write the final answer for the owner: lead with the direct answer, then key figures (with recorded vs estimated labels), then prioritised recommendations, then "Proposed actions awaiting your approval" if any were drafted. Use short markdown sections and bullet points; be concise (under ~250 words unless asked for detail).
+4. Then write the final answer for the owner. The app shows the tool data as visual cards under your answer (stock gauges, purchase orders with approve buttons, cash runway, payroll, contract deadlines, priorities), so do NOT repeat tables or long lists of figures. Write a short summary (under ~120 words): the direct answer first, the one or two figures that matter most (labelled recorded or estimated), then up to three prioritised next steps. Mention that drafted orders or payroll are waiting for approval if any were prepared.
 {GROUNDING_RULES}"""
 
 
@@ -368,7 +368,11 @@ def _execute(ctx, session_id: int, run_id: str, user_text: str) -> None:
             answer = "I couldn't produce an answer for that request."
         ver = verify(answer, run.tool_outputs)
         run.emit("Verifier", "verification", f"{ver['figures_verified']}/{ver['figures_checked']} figures traced to tool results", ver)
-        meta = {"run_id": run_id, "mode": run.mode, "model": config.META_MODEL if run.mode == "real" else "deterministic-mock",
+        from .cards import build_cards
+        with db.connect() as conn:
+            currency = db.one(conn, "SELECT currency FROM businesses WHERE id=?", (ctx.business_id,))["currency"]
+        cards = build_cards(run.tool_outputs, currency)
+        meta = {"cards": cards, "run_id": run_id, "mode": run.mode, "model": config.META_MODEL if run.mode == "real" else "deterministic-mock",
                 "agents": run.agents_used, "actions": run.actions, "verification": ver, "model_calls": run.model_calls,
                 "tokens": run.tokens, "duration_ms": int((time.monotonic() - t0) * 1000), "fallback_reason": fallback_reason}
         with db.connect() as conn:
