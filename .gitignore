@@ -6,3 +6,5 @@ data/
 .venv/
 venv/
 out_live/
+.DS_Store
+Thumbs.db
