@@ -1,4 +1,4 @@
-# Beezy — your AI operations team for small businesses
+# Beezy - Your AI operations team for small businesses
 
 **Track:** Build for Your World · **Meta models:** Muse Spark 1.3 (tool-calling agents), Muse Voice Transcribe 1.0 (voice commands) via the Meta Model API
 
